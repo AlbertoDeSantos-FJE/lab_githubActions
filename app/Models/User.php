@@ -22,7 +22,18 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class);
+    }
+
+    public function favoritePlaces()
+    {
+        return $this->belongsToMany(Place::class, 'favorites');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

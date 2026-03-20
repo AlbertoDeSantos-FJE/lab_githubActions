@@ -1,0 +1,38 @@
+# Projecte: App de Guia Turística i Gimcanes (Hospitalet)
+
+## Visió General
+Una webapp dual (Admin/Usuari) per a la gestió i exploració de llocs d'interès a L'Hospitalet, amb funcionalitats de gamificació (gimcanes grupals) i personalització.
+
+## Funcionalitats Clau
+
+### 1. Administració (Desktop)
+*   **Gestió de Mapa:** Definició de llocs amb icones personalitzades, tags i categories.
+*   **Geocodificació:** Afegir llocs per adreça, coordenades o marcador directe.
+*   **Filtres d'Admin:** Visualització per etiquetes.
+*   **Configuració de Gimcanes:** Definició de punts de control, proves, pistes i paràmetres de validació grupal.
+*   **Base de Dades:** Estructura per a etiquetes, llocs i dades de gimcana (Laravel + AJAX/JSON).
+
+### 2. Usuari (Mobile-First / Responsiu)
+*   **Registre i Perfil:** Accés personalitzat (Superior Dreta).
+*   **Exploració de Mapa:**
+    *   Filtres per tags, favorits i proximitat.
+    *   Fitxa de lloc amb resum de dades.
+    *   Càlcul de rutes des de la ubicació actual.
+*   **Favorits:** Repositori personal de llocs d'interès.
+*   **Gimcana Grupal:**
+    *   Creació/Unió a grups.
+    *   Validació de pas de tots els membres per punt de control.
+    *   Visualització de proves només en arribar al lloc.
+    *   Sistema de pistes seqüencials.
+
+### 3. Disseny i UI
+*   **Branding:** Logo a la part superior esquerra.
+*   **Navegació Usuari:** Menú inferior (Bottom Nav) per a funcionalitats clau.
+*   **Modes:** Suport per a mode Clar/Oscur i Multi-idioma.
+
+## Pantalles a Dissenyar
+1.  **[Admin] Dashboard de Gestió de Mapa:** Mapa interactiu amb eines per afegir/editar llocs i filtres de categories.
+2.  **[Admin] Configuració de Gimcanes:** Formulari per crear el flux de la gimcana (punts, proves, pistes).
+3.  **[Usuari] Mapa de l'Explorador (Mòbil):** Vista principal amb la ubicació de l'usuari, marcadors, filtres i accés a favorits.
+4.  **[Usuari] Fitxa de Lloc i Prova de Gimcana (Mòbil):** Detall del lloc que canvia dinàmicament per mostrar la prova si l'usuari hi és a prop.
+5.  **[Usuari] Gestió de Grups de Gimcana (Mòbil):** Pantalla per crear o unir-se a un grup de joc.
