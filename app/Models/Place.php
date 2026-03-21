@@ -9,7 +9,7 @@ class Place extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'address', 'latitude', 'longitude', 'category_id'];
+    protected $fillable = ['name', 'description', 'address', 'latitude', 'longitude', 'category_id', 'image'];
 
     public function category()
     {

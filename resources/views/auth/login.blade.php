@@ -98,7 +98,7 @@
     }
   </style>
   </head>
-<body class="bg-background text-on-background font-body selection:bg-primary-container selection:text-on-primary-container">
+<body class="bg-background dark:bg-slate-950 text-on-background dark:text-slate-100 font-body selection:bg-primary-container selection:text-on-primary-container">
 <!-- TopAppBar -->
 <header class="fixed top-0 w-full z-50 bg-[#fcf4ff]/70 dark:bg-slate-950/70 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
 <div class="flex items-center gap-2">
@@ -118,23 +118,23 @@
 <div class="relative mb-6">
 <!-- Abstract Glass Background for Logo -->
 <div class="absolute inset-0 bg-primary-container/20 blur-3xl rounded-full"></div>
-<img alt="Guia de l'Hospitalet Logo" class="relative w-32 h-32 object-contain filter drop-shadow-sm" data-alt="Official logo for Hospitalet city guide app" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFRDEjgPAAHm9peuTnZqqCTE-uUPImy7ErNPzNZWh_6M9pVKbX4OBGUgZkUf40Agl7Q6N5XK5QAvIM6D3FUtE7C_0tZncz-Qs2HjvCoT25k_Qspw26Vp868_qnkqCDoWXeMFIvoxPCcy92Fb4nz5DOBqDaMTobT1wnkss-i8_lpXiPesGk1bf8r-y4FyF5Kh8m8rTxe0KEjTqE4tITsMtic9zJLUqR-gM6-Jfi0EUY44CLCHE0tnD2w5nsQQDjBKNxQuIdOucLOlw"/>
+<img alt="Guia de l'Hospitalet Logo" class="relative w-32 h-32 object-contain filter drop-shadow-sm dark:brightness-110" data-alt="Official logo for Hospitalet city guide app" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFRDEjgPAAHm9peuTnZqqCTE-uUPImy7ErNPzNZWh_6M9pVKbX4OBGUgZkUf40Agl7Q6N5XK5QAvIM6D3FUtE7C_0tZncz-Qs2HjvCoT25k_Qspw26Vp868_qnkqCDoWXeMFIvoxPCcy92Fb4nz5DOBqDaMTobT1wnkss-i8_lpXiPesGk1bf8r-y4FyF5Kh8m8rTxe0KEjTqE4tITsMtic9zJLUqR-gM6-Jfi0EUY44CLCHE0tnD2w5nsQQDjBKNxQuIdOucLOlw"/>
 </div>
-<h2 class="font-headline text-4xl font-extrabold text-on-surface tracking-tight leading-tight mb-3">
+<h2 class="font-headline text-4xl font-extrabold text-on-surface dark:text-slate-100 tracking-tight leading-tight mb-3">
                 Explora el pols <br/> de la <span class="text-primary italic">teva ciutat</span>
 </h2>
-<p class="text-on-surface-variant font-body leading-relaxed text-balance">
+<p class="text-on-surface-variant dark:text-slate-400 font-body leading-relaxed text-balance">
                 Descobreix racons amagats, viu la cultura local i participa en emocionants gimcanes urbanes.
             </p>
 </div>
 <!-- Auth Container -->
-<div class="w-full bg-surface-container-lowest rounded-xl p-1 shadow-[0_12px_32px_rgba(54,39,78,0.06)] border border-outline-variant/10">
+<div class="w-full bg-surface-container-lowest dark:bg-slate-900 rounded-xl p-1 shadow-[0_12px_32px_rgba(54,39,78,0.06)] border border-outline-variant/10 dark:border-slate-800">
 <!-- Tab Navigation -->
-<div class="flex p-1 gap-1 bg-surface-container-low rounded-xl mb-6">
-<button class="flex-1 py-3 text-sm font-bold rounded-lg transition-all duration-200 bg-surface-container-lowest text-primary shadow-sm">
+<div class="flex p-1 gap-1 bg-surface-container-low dark:bg-slate-800 rounded-xl mb-6">
+<button class="flex-1 py-3 text-sm font-bold rounded-lg transition-all duration-200 bg-surface-container-lowest dark:bg-slate-700 text-primary dark:text-slate-100 shadow-sm">
                     Inicia sessió
                 </button>
-<button class="flex-1 py-3 text-sm font-semibold rounded-lg transition-all duration-200 text-on-surface-variant hover:bg-surface-container-highest/30">
+<button class="flex-1 py-3 text-sm font-semibold rounded-lg transition-all duration-200 text-on-surface-variant dark:text-slate-400 hover:bg-surface-container-highest/30 dark:hover:bg-slate-700">
                     Registra't
                 </button>
 </div>
@@ -142,21 +142,21 @@
 <form method="POST" action="{{ route('login') }}" class="px-4 pb-6 space-y-5">
     @csrf
     <div class="space-y-1.5">
-        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant px-1" for="email">Correu electrònic</label>
+        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant dark:text-slate-400 px-1" for="email">Correu electrònic</label>
         <div class="relative">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="mail">mail</span>
-            <input name="email" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest border-none rounded-xl text-on-surface placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all" id="email" placeholder="nom@exemple.com" type="email"/>
+            <input name="email" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-xl text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all" id="email" placeholder="nom@exemple.com" type="email"/>
         </div>
         @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
     </div>
     <div class="space-y-1.5">
         <div class="flex justify-between items-center px-1">
-            <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant" for="password">Contrasenya</label>
+            <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant dark:text-slate-400" for="password">Contrasenya</label>
             <a class="text-xs font-semibold text-primary hover:underline" href="#">Recuperar contrasenya</a>
         </div>
         <div class="relative">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="lock">lock</span>
-            <input name="password" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest border-none rounded-xl text-on-surface placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all" id="password" placeholder="••••••••" type="password"/>
+            <input name="password" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-xl text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all" id="password" placeholder="••••••••" type="password"/>
         </div>
         @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
     </div>
@@ -167,23 +167,23 @@
 <!-- Divider -->
 <div class="relative flex items-center px-8 mb-6">
 <div class="flex-grow border-t border-outline-variant/20"></div>
-<span class="flex-shrink mx-4 text-[10px] font-bold uppercase tracking-tighter text-outline">O continua amb</span>
+<span class="flex-shrink mx-4 text-[10px] font-bold uppercase tracking-tighter text-outline dark:text-slate-500">O continua amb</span>
 <div class="flex-grow border-t border-outline-variant/20"></div>
 </div>
 <!-- Social Logins -->
 <div class="grid grid-cols-2 gap-4 px-4 pb-8">
-<button class="flex items-center justify-center gap-2 py-3 bg-surface-container-low rounded-full border border-outline-variant/10 hover:bg-surface-container-high transition-colors">
+<button class="flex items-center justify-center gap-2 py-3 bg-surface-container-low dark:bg-slate-800 rounded-full border border-outline-variant/10 dark:border-slate-700 hover:bg-surface-container-high dark:hover:bg-slate-700 transition-colors">
 <img alt="Google" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4xPBXslGaSi4yUF-_k1pOKKxlHi1Ho6cuMZI0kwWJwWi9P_gshwRJz-rZG8yh_ZJ5dkGO8GUax9w3u4fSvCmF0M3joJcVgz98Jf5Ei_V8Wh3_5dM8t3ntDN94kPL2ha9MPhkYGmgn3TMvKMfoOAYWGNGrQLc9fV95V5gsACCWH_v6fB934WjrXIpU2_o_HxGonz7ZuSFUsijuq5KZSTip_sz3YTbxxkZUQKRGZeP3h_uldG7qeY2Q0XBqaJAfwJWou349bE8CGi8"/>
-<span class="text-sm font-semibold text-on-surface">Google</span>
+<span class="text-sm font-semibold text-on-surface dark:text-slate-300">Google</span>
 </button>
-<button class="flex items-center justify-center gap-2 py-3 bg-surface-container-low rounded-full border border-outline-variant/10 hover:bg-surface-container-high transition-colors">
+<button class="flex items-center justify-center gap-2 py-3 bg-surface-container-low dark:bg-slate-800 rounded-full border border-outline-variant/10 dark:border-slate-700 hover:bg-surface-container-high dark:hover:bg-slate-700 transition-colors">
 <img alt="Apple" class="w-5 h-5 dark:invert" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQU4RyRoyzX-0I5f0Z0XxCLow5Dj6_eDkk266ef1GfNOpZ9TuA3p1jeHqhsPg2nJukGu1vISYunqdZSKMgCvdvMygIn41qNG6uhYEfnYtFkTj8BoBtKCJI5fGMpKT6HfDBiqr46_BuWj2VfeRi7QSVsVpXzVoLR6_NTe4F5mwTlN1YTFMLAwSpL7A_0NV_2UI2Nntvwr7FQbYzEXpIxQhWIMMByvTKw5lt47tzIHU8TlCSe5wDKjfvqnvp7g5MKBESp6bPBrQ-8Rg"/>
-<span class="text-sm font-semibold text-on-surface">Apple</span>
+<span class="text-sm font-semibold text-on-surface dark:text-slate-300">Apple</span>
 </button>
 </div>
 </div>
 <!-- Scavenger Hunt Teaser (Editorial Card) -->
-<div class="mt-10 w-full relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim p-6 text-on-secondary shadow-xl">
+<div class="mt-10 w-full relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim dark:from-slate-800 dark:to-slate-900 p-6 text-on-secondary dark:text-slate-100 shadow-xl">
 <div class="absolute -right-8 -top-8 w-32 h-32 bg-secondary-container/30 rounded-full blur-2xl"></div>
 <div class="relative z-10 flex flex-col gap-2">
 <div class="flex items-center gap-2 mb-1">
@@ -207,7 +207,7 @@
 </div>
 <!-- Footer -->
 <footer class="mt-12 text-center">
-<p class="text-[10px] text-on-surface-variant/60 font-semibold uppercase tracking-widest leading-relaxed">
+<p class="text-[10px] text-on-surface-variant/60 dark:text-slate-500 font-semibold uppercase tracking-widest leading-relaxed">
                 Fet amb <span class="text-tertiary">♥</span> per l'Ajuntament de l'Hospitalet<br/>
                 Polítiques de privadesa • Termes d'ús
             </p>

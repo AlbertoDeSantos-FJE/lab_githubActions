@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\LocaleController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,22 +18,34 @@ Route::get('/login', function () {
 Route::post('/login', [LoginController::class, 'authenticate']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Admin panel grouping
-Route::middleware(['auth'])->prefix('admin')->group(function () {
-    // Admin: Gestió de llocs (Dashboard Maps placeholder)
-    Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
-    Route::get('/places', [AdminController::class, 'getPlaces']);
-    Route::post('/places', [AdminController::class, 'storePlace']);
-    Route::delete('/places/{id}', [AdminController::class, 'destroyPlace']);
-    
-    // Admin: Categories
-    Route::get('/categories', [AdminController::class, 'getCategories']); // API endpoint for map 
-    Route::get('/manage-categories', function() {
-        return view('admin.categories');
-    })->name('admin.categories');
-    
-    // Admin: Gimcanes
-    Route::get('/manage-gymkhanas', function() {
-        return view('admin.gymkhanas');
-    })->name('admin.gymkhanas');
+// Admin panel grouping with role protection
+Route::middleware(['auth'])->group(function () {
+    // Shared routes (Admin & Client)
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Admin only routes
+    Route::middleware(['admin'])->prefix('admin')->group(function () {
+        Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
+
+        Route::get('/places', [AdminController::class, 'getPlaces']);
+        Route::post('/places', [AdminController::class, 'storePlace']);
+        Route::put('/places/{id}', [AdminController::class, 'updatePlace']);
+        Route::delete('/places/{id}', [AdminController::class, 'destroyPlace']);
+        
+        Route::get('/categories', [AdminController::class, 'getCategories']);
+        Route::get('/manage-categories', [AdminController::class, 'manageCategories'])->name('admin.categories');
+        Route::post('/categories', [AdminController::class, 'storeCategory']);
+        Route::delete('/categories/{id}', [AdminController::class, 'destroyCategory']);
+        Route::post('/categories/{id}/toggle', [AdminController::class, 'toggleCategoryStatus']);
+        
+        Route::get('/manage-gymkhanas', function() {
+            return view('admin.gymkhanas');
+        })->name('admin.gymkhanas');
+
+        Route::get('/manage-users', function() {
+            return view('admin.users');
+        })->name('admin.users');
+    });
 });
+Route::get('lang/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');

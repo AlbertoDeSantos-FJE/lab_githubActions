@@ -17,11 +17,12 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             
-            // Si és admin, va a gestió de llocs. Si fos usuari aniria al frontend.
             if (Auth::user()->role === 'admin') {
                 return redirect()->intended('/admin');
             }
-            return redirect()->intended('/');
+            
+            // Per defecte, els usuaris normals van al perfil mentre no tinguem la seva vista llista
+            return redirect()->intended('/profile');
         }
 
         return back()->withErrors([
