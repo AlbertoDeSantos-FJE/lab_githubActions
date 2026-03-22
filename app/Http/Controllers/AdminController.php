@@ -82,10 +82,26 @@ class AdminController extends Controller
         return response()->json($categories);
     }
 
-    public function manageCategories()
+    public function manageCategories(Request $request)
     {
-        $categories = Category::withCount('places')->get();
-        return view('admin.categories', compact('categories'));
+        $search = $request->input('search');
+
+        $query = Category::withCount('places');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('description', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $categories = $query->paginate(7)->appends(['search' => $search]);
+        
+        if ($request->ajax()) {
+            return view('admin.partials.categories-list', compact('categories', 'search'))->render();
+        }
+
+        return view('admin.categories', compact('categories', 'search'));
     }
 
     public function toggleCategoryStatus($id)
@@ -98,12 +114,44 @@ class AdminController extends Controller
     public function storeCategory(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'icon' => 'nullable|string',
-            'color' => 'nullable|string|max:7',
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'icon'        => 'nullable|string',
+            'color'       => 'nullable|string|max:7',
+            'icon_image'  => 'nullable|mimetypes:image/jpeg,image/png,image/gif,image/webp,image/svg+xml|max:2048',
         ]);
 
+        // If a custom icon image was uploaded, store it and use its path as the icon value
+        if ($request->hasFile('icon_image')) {
+            $path = $request->file('icon_image')->store('category-icons', 'public');
+            $validated['icon'] = $path;
+        }
+
+        unset($validated['icon_image']); // not a DB column
+
         $category = Category::create($validated);
+        return response()->json(['success' => true, 'category' => $category]);
+    }
+
+    public function updateCategory(Request $request, $id)
+    {
+        $category = Category::findOrFail($id);
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string|max:500',
+            'icon'        => 'nullable|string',
+            'color'       => 'nullable|string|max:7',
+            'icon_image'  => 'nullable|mimetypes:image/jpeg,image/png,image/gif,image/webp,image/svg+xml|max:2048',
+        ]);
+
+        if ($request->hasFile('icon_image')) {
+            $path = $request->file('icon_image')->store('category-icons', 'public');
+            $validated['icon'] = $path;
+        }
+
+        unset($validated['icon_image']);
+
+        $category->update($validated);
         return response()->json(['success' => true, 'category' => $category]);
     }
 

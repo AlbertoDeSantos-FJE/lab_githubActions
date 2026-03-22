@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/categories', [AdminController::class, 'getCategories']);
         Route::get('/manage-categories', [AdminController::class, 'manageCategories'])->name('admin.categories');
         Route::post('/categories', [AdminController::class, 'storeCategory']);
+        Route::put('/categories/{id}', [AdminController::class, 'updateCategory']);
         Route::delete('/categories/{id}', [AdminController::class, 'destroyCategory']);
         Route::post('/categories/{id}/toggle', [AdminController::class, 'toggleCategoryStatus']);
         
