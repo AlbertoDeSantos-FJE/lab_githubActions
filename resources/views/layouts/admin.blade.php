@@ -71,7 +71,7 @@
                 <div class="flex-1 max-w-xl mx-8 hidden lg:block">
                     <div class="relative group">
                         <span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-                        <input type="text" id="search-input" placeholder="{{ __('Cerca llocs, activitats...') }}" class="w-full bg-surface-container-low dark:bg-slate-900 border-none rounded-2xl py-3.5 pl-14 pr-6 focus:ring-4 focus:ring-primary/10 transition-all text-sm font-medium">
+                        <input type="text" id="search-input" placeholder="{{ __('Cerca llocs') }}" class="w-full bg-surface-container-low dark:bg-slate-900 border-none rounded-2xl py-3.5 pl-14 pr-6 focus:ring-4 focus:ring-primary/10 transition-all text-sm font-medium">
                     </div>
                 </div>
                 @else
