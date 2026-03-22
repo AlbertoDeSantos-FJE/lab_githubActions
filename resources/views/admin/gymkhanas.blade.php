@@ -4,15 +4,15 @@
 @section('header_title', __('Gestió de Gimcanes'))
 
 @section('content')
-<div class="flex flex-col gap-10">
+<div class="flex flex-col gap-5">
     <!-- Hero / Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div class="space-y-2">
-            <span class="text-primary font-black tracking-[0.2em] text-[10px] uppercase bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/10">{{ __('Exploració Urbana') }}</span>
+            <span class="text-primary font-black tracking-[0.2em] text-[10px] uppercase bg-primary/10 px-3 py-1.5 rounded-[10px] border border-primary/10">{{ __('Exploració Urbana') }}</span>
             <h3 class="text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100">{{ __('Gimcanes Actives') }}</h3>
             <p class="text-slate-500 dark:text-slate-400 font-medium">{{ __('Gestiona i supervisa les rutes i experiències interactives.') }}</p>
         </div>
-        <button class="bg-primary text-white px-8 py-4 rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-sm">
+        <button class="bg-primary text-white px-8 py-4 rounded-[10px] font-black flex items-center gap-2 shadow-xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-sm">
             <span class="material-symbols-outlined">add</span>
             {{ __('Nova Gimcana') }}
         </button>
@@ -29,10 +29,10 @@
             ];
         @endphp
         @foreach($stats as $stat)
-            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-50 dark:border-slate-800 shadow-sm hover:border-primary/20 transition-all group">
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[10px] border border-slate-50 dark:border-slate-800 shadow-sm hover:border-primary/20 transition-all group">
                 <div class="flex justify-between items-start mb-4">
                     <p class="text-slate-500 dark:text-slate-400 text-xs font-black uppercase tracking-widest">{{ __($stat['label']) }}</p>
-                    <div class="w-10 h-10 rounded-xl {{ $stat['bg'] }} flex items-center justify-center {{ $stat['color'] }}">
+                    <div class="w-10 h-10 rounded-[10px] {{ $stat['bg'] }} flex items-center justify-center {{ $stat['color'] }}">
                         <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">{{ $stat['icon'] }}</span>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
     </div>
 
     <!-- Table Container -->
-    <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-sm overflow-hidden border border-slate-50 dark:border-slate-800">
+    <div class="bg-white dark:bg-slate-900 rounded-[10px] shadow-sm overflow-hidden border border-slate-50 dark:border-slate-800">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -71,7 +71,7 @@
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
                             <td class="px-10 py-8">
                                 <div class="flex items-center gap-5">
-                                    <div class="w-16 h-16 rounded-2xl bg-primary/5 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-800 shrink-0">
+                                    <div class="w-16 h-16 rounded-[10px] bg-primary/5 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-800 shrink-0">
                                         <img alt="{{ $gym['name'] }}" class="w-full h-full object-cover" src="{{ $gym['img'] }}"/>
                                     </div>
                                     <div class="truncate">
@@ -81,7 +81,7 @@
                                 </div>
                             </td>
                             <td class="px-10 py-8">
-                                <span class="px-4 py-1.5 bg-primary/10 dark:bg-slate-800 rounded-xl text-[10px] font-black text-primary dark:text-primary-fixed uppercase tracking-widest border border-primary/10">
+                                <span class="px-4 py-1.5 bg-primary/10 dark:bg-slate-800 rounded-[10px] text-[10px] font-black text-primary dark:text-primary-fixed uppercase tracking-widest border border-primary/10">
                                     {{ $gym['stages'] }} {{ __('Etapes') }}
                                 </span>
                             </td>
@@ -93,10 +93,10 @@
                             </td>
                             <td class="px-10 py-8 text-right">
                                 <div class="flex justify-end gap-3">
-                                    <button class="w-10 h-10 rounded-xl flex items-center justify-center text-primary bg-primary/5 hover:bg-primary/10 transition-colors">
+                                    <button class="w-10 h-10 rounded-[10px] flex items-center justify-center text-primary bg-primary/5 hover:bg-primary/10 transition-colors">
                                         <span class="material-symbols-outlined text-lg">edit</span>
                                     </button>
-                                    <button class="w-10 h-10 rounded-xl flex items-center justify-center text-red-500 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors">
+                                    <button class="w-10 h-10 rounded-[10px] flex items-center justify-center text-red-500 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors">
                                         <span class="material-symbols-outlined text-lg">delete</span>
                                     </button>
                                 </div>
@@ -110,9 +110,9 @@
             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Mostrant 4 de 24 gimcanes') }}</p>
             <div class="flex gap-2">
                 @for($i = 1; $i <= 3; $i++)
-                    <button class="w-10 h-10 rounded-xl flex items-center justify-center {{ $i == 1 ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-primary transition-all' }} text-xs font-black">{{ $i }}</button>
+                    <button class="w-10 h-10 rounded-[10px] flex items-center justify-center {{ $i == 1 ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-primary transition-all' }} text-xs font-black">{{ $i }}</button>
                 @endfor
-                <button class="w-10 h-10 rounded-xl flex items-center justify-center bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-primary transition-all">
+                <button class="w-10 h-10 rounded-[10px] flex items-center justify-center bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-primary transition-all">
                     <span class="material-symbols-outlined text-sm">chevron_right</span>
                 </button>
             </div>

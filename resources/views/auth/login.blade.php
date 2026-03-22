@@ -88,9 +88,9 @@
             direction: ltr;
         }
         /* Custom scrollbar to keep editorial feel */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #b7a5d4; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #5D3FD3; border-radius: 5px; }
     </style>
 <style>
     body {
@@ -128,13 +128,13 @@
             </p>
 </div>
 <!-- Auth Container -->
-<div class="w-full bg-surface-container-lowest dark:bg-slate-900 rounded-xl p-1 shadow-[0_12px_32px_rgba(54,39,78,0.06)] border border-outline-variant/10 dark:border-slate-800">
+<div class="w-full bg-surface-container-lowest dark:bg-slate-900 rounded-[10px] p-1 shadow-[0_12px_32px_rgba(54,39,78,0.06)] border border-outline-variant/10 dark:border-slate-800">
 <!-- Tab Navigation -->
-<div class="flex p-1 gap-1 bg-surface-container-low dark:bg-slate-800 rounded-xl mb-6">
-<button class="flex-1 py-3 text-sm font-bold rounded-lg transition-all duration-200 bg-surface-container-lowest dark:bg-slate-700 text-primary dark:text-slate-100 shadow-sm">
+<div class="flex p-1 gap-1 bg-surface-container-low dark:bg-slate-800 rounded-[10px] mb-6">
+<button class="flex-1 py-3 text-sm font-bold rounded-[10px] transition-all duration-200 bg-surface-container-lowest dark:bg-slate-700 text-primary dark:text-slate-100 shadow-sm">
                     Inicia sessió
                 </button>
-<button class="flex-1 py-3 text-sm font-semibold rounded-lg transition-all duration-200 text-on-surface-variant dark:text-slate-400 hover:bg-surface-container-highest/30 dark:hover:bg-slate-700">
+<button class="flex-1 py-3 text-sm font-semibold rounded-[10px] transition-all duration-200 text-on-surface-variant dark:text-slate-400 hover:bg-surface-container-highest/30 dark:hover:bg-slate-700">
                     Registra't
                 </button>
 </div>
@@ -145,7 +145,7 @@
         <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant dark:text-slate-400 px-1" for="email">Correu electrònic</label>
         <div class="relative">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="mail">mail</span>
-            <input name="email" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-xl text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all" id="email" placeholder="nom@exemple.com" type="email"/>
+            <input name="email" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-[10px] text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all" id="email" placeholder="nom@exemple.com" type="email"/>
         </div>
         @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
     </div>
@@ -156,7 +156,7 @@
         </div>
         <div class="relative">
             <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="lock">lock</span>
-            <input name="password" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-xl text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all" id="password" placeholder="••••••••" type="password"/>
+            <input name="password" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-[10px] text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all" id="password" placeholder="••••••••" type="password"/>
         </div>
         @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
     </div>
@@ -183,7 +183,7 @@
 </div>
 </div>
 <!-- Scavenger Hunt Teaser (Editorial Card) -->
-<div class="mt-10 w-full relative overflow-hidden rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim dark:from-slate-800 dark:to-slate-900 p-6 text-on-secondary dark:text-slate-100 shadow-xl">
+<div class="mt-10 w-full relative overflow-hidden rounded-[10px] bg-gradient-to-br from-secondary to-secondary-dim dark:from-slate-800 dark:to-slate-900 p-6 text-on-secondary dark:text-slate-100 shadow-xl">
 <div class="absolute -right-8 -top-8 w-32 h-32 bg-secondary-container/30 rounded-full blur-2xl"></div>
 <div class="relative z-10 flex flex-col gap-2">
 <div class="flex items-center gap-2 mb-1">

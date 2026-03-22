@@ -16,16 +16,16 @@
         filter: brightness(0) invert(1);
     }
     .custom-scrollbar::-webkit-scrollbar {
-        width: 5px;
+        width: 10px;
         height: 5px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.05);
+        background: transparent;
         border-radius: 10px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
         background: #5D3FD3;
-        border-radius: 10px;
+        border-radius: 5px;
     }
     .dark .custom-scrollbar::-webkit-scrollbar-thumb {
         background: #8b5cf6;
@@ -36,43 +36,43 @@
 @section('content')
 <div class="grid grid-cols-12 gap-10 items-start">
     <!-- Left Side: Categories List -->
-    <div class="col-span-12 lg:col-span-8 space-y-8">
+    <div class="col-span-12 lg:col-span-8 space-y-4">
         <div class="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
             <div>
                 <h3 class="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Llistat de Categories') }}</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ __('Visualitza i gestiona l\'estat de les categories existents.') }}</p>
             </div>
-            <div class="flex bg-white dark:bg-slate-900 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-                <button class="px-5 py-2 text-xs font-bold rounded-xl bg-primary text-white shadow-lg shadow-primary/20">{{ __('Totes') }}</button>
-                <button class="px-5 py-2 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">{{ __('Actives') }}</button>
-                <button class="px-5 py-2 text-xs font-bold rounded-xl text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">{{ __('Inactives') }}</button>
+            <div class="flex bg-white dark:bg-slate-900 p-1.5 rounded-[10px] border border-slate-100 dark:border-slate-800 shadow-sm">
+                <button class="px-5 py-2 text-xs font-bold rounded-[10px] bg-primary text-white shadow-lg shadow-primary/20">{{ __('Totes') }}</button>
+                <button class="px-5 py-2 text-xs font-bold rounded-[10px] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">{{ __('Actives') }}</button>
+                <button class="px-5 py-2 text-xs font-bold rounded-[10px] text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">{{ __('Inactives') }}</button>
             </div>
         </div>
 
-        <div id="categories-container" class="space-y-8">
+        <div id="categories-container" class="space-y-4">
             @include('admin.partials.categories-list')
         </div>
     </div>
 
     <!-- Right Side: Persistent Form -->
     <div class="col-span-12 lg:col-span-4 sticky top-32">
-        <div class="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div class="mb-10">
+        <div class="bg-white dark:bg-slate-900 px-10 py-5 rounded-[10px] border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div class="mb-5">
                 <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Nova Categoria') }}</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{{ __('Defineix els paràmetres de la nova categoria.') }}</p>
             </div>
-            <form id="category-form" class="space-y-8">
+            <form id="category-form" class="space-y-4">
                 @csrf
                 <!-- Category Name -->
                 <div class="space-y-3">
                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">{{ __('Nom de la Categoria') }}</label>
-                    <input id="cat-name" name="name" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl px-6 py-4 focus:ring-4 focus:ring-primary/10 outline-none placeholder:text-slate-400 dark:text-slate-100 transition-all font-medium text-sm" placeholder="Ex: Vida Nocturna" type="text" required/>
+                    <input id="cat-name" name="name" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] px-6 py-4 focus:ring-4 focus:ring-primary/10 outline-none placeholder:text-slate-400 dark:text-slate-100 transition-all font-medium text-sm" placeholder="Ex: Vida Nocturna" type="text" required/>
                 </div>
 
                 <!-- Description -->
                 <div class="space-y-3">
                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">{{ __('Descripció (opcional)') }}</label>
-                    <textarea id="cat-description" name="description" rows="2" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl px-6 py-3 focus:ring-4 focus:ring-primary/10 outline-none placeholder:text-slate-400 dark:text-slate-100 transition-all font-medium text-sm resize-none" placeholder="Ex: Monuments històrics i patrimoni cultural"></textarea>
+                    <textarea id="cat-description" name="description" rows="2" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] px-6 py-3 focus:ring-4 focus:ring-primary/10 outline-none placeholder:text-slate-400 dark:text-slate-100 transition-all font-medium text-sm resize-none" placeholder="Ex: Monuments històrics i patrimoni cultural"></textarea>
                 </div>
 
                 <!-- Color Picker -->
@@ -80,10 +80,10 @@
                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">{{ __('Color del Marcador') }}</label>
                     <div class="flex items-center gap-4">
                         <input type="color" id="cat-color-picker" class="hidden" value="#5D3FD3">
-                        <div id="color-preview" class="w-14 h-14 rounded-2xl bg-primary shadow-lg border border-white/20 cursor-pointer shrink-0"></div>
+                        <div id="color-preview" class="w-14 h-14 rounded-[10px] bg-primary shadow-lg border border-white/20 cursor-pointer shrink-0"></div>
                         <div class="flex-1 relative">
                             <span class="absolute left-6 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">HEX</span>
-                            <input id="cat-color" name="color" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl pl-16 pr-6 py-4 focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm font-bold text-slate-900 dark:text-slate-100" type="text" value="#5D3FD3"/>
+                            <input id="cat-color" name="color" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] pl-16 pr-6 py-4 focus:ring-4 focus:ring-primary/10 outline-none font-mono text-sm font-bold text-slate-900 dark:text-slate-100" type="text" value="#5D3FD3"/>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
                 <div class="space-y-4">
                     <label class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 ml-1">{{ __('Selecció d\'Icona') }}</label>
                     <input type="hidden" id="cat-icon" name="icon" value="stars">
-                    <input type="file" id="custom-icon-file" accept="image/*,.svg,image/svg+xml" class="hidden">
+                    <input type="file" id="custom-icon-file" accept=".svg,image/svg+xml" class="hidden">
                     @php
                         $icons = [
                             /* -- used by existing categories -- */
@@ -115,29 +115,29 @@
                             'photo_camera', 'wb_sunny', 'night_shelter', 'anchor', 'forest',
                         ];
 
-                        // Extract existing custom icons from categories
-                        $customIcons = $categories->pluck('icon')
+                        // Extract existing custom icons from categories (globally to bypass pagination)
+                        $customIcons = \App\Models\Category::pluck('icon')
                             ->filter(fn($icon) => $icon && str_starts_with($icon, 'category-icons/'))
                             ->unique();
                     @endphp
-                    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-3">
+                    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-[10px] p-3">
                         <div class="grid grid-cols-6 gap-2 max-h-52 overflow-y-auto pr-1 icon-grid-scroll custom-scrollbar">
                             @foreach($icons as $icon)
-                            <button class="icon-opt aspect-square flex items-center justify-center rounded-xl {{ $icon == 'stars' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600' }}" type="button" data-icon="{{ $icon }}" title="{{ $icon }}">
+                            <button class="icon-opt aspect-square flex items-center justify-center rounded-[10px] {{ $icon == 'stars' ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600' }}" type="button" data-icon="{{ $icon }}" title="{{ $icon }}">
                                 <span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">{{ $icon }}</span>
                             </button>
                             @endforeach
 
                             @foreach($customIcons as $cIcon)
-                            <button class="icon-opt aspect-square flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600 overflow-hidden p-1" type="button" data-icon="{{ $cIcon }}" title="{{ $cIcon }}">
-                                <img src="{{ asset('storage/' . $cIcon) }}" class="w-full h-full object-contain filter-slate-400" alt="custom icon">
+                            <button class="icon-opt aspect-square flex items-center justify-center rounded-[10px] bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600 overflow-hidden" type="button" data-icon="{{ $cIcon }}" title="{{ $cIcon }}">
+                                <img src="{{ asset('storage/' . $cIcon) }}" class="w-1/2 h-1/2 object-contain filter-slate-400" alt="custom icon">
                             </button>
                             @endforeach
                             <!-- Custom upload slot -->
                             <button id="btn-custom-icon" type="button" title="{{ __('Pujar icona pròpia') }}"
-                                class="aspect-square flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-dashed border-slate-300 dark:border-slate-500 relative">
-                                <span id="custom-icon-preview-thumb" class="hidden w-full h-full rounded-xl object-cover absolute inset-0 overflow-hidden">
-                                     <img id="custom-icon-img" class="w-full h-full object-cover rounded-xl" src="" alt="">
+                                class="aspect-square flex items-center justify-center rounded-[10px] bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-dashed border-slate-300 dark:border-slate-500 relative">
+                                <span id="custom-icon-preview-thumb" class="hidden absolute inset-0 flex items-center justify-center">
+                                     <img id="custom-icon-img" class="w-1/2 h-1/2 object-contain" src="" alt="">
                                 </span>
                                 <span id="custom-icon-placeholder" class="material-symbols-outlined text-lg">add_photo_alternate</span>
                             </button>
@@ -146,14 +146,14 @@
                     <!-- Drag & Drop upload panel (hidden by default) -->
                     <div id="icon-upload-panel" class="hidden">
                         <div id="icon-drop-zone"
-                            class="relative flex flex-col items-center justify-center gap-3 border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-2xl p-6 text-center transition-all cursor-pointer"
+                            class="relative flex flex-col items-center justify-center gap-3 border-2 border-dashed border-primary/40 bg-primary/5 dark:bg-primary/10 rounded-[10px] p-6 text-center transition-all cursor-pointer"
                             onclick="document.getElementById('custom-icon-file').click()">
                             <span class="material-symbols-outlined text-4xl text-primary">cloud_upload</span>
                             <div>
-                                <p class="text-sm font-black text-slate-700 dark:text-slate-200">{{ __('Arrossega la imatge aquí') }}</p>
-                                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ __('o fes clic per explorar') }} &bull; PNG, JPG, SVG, WEBP</p>
+                                <p class="text-sm font-black text-slate-700 dark:text-slate-200">{{ __('Arrossega la icona SVG aquí') }}</p>
+                                <p class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ __('o fes clic per explorar') }} &bull; Només format SVG</p>
                             </div>
-                            <div id="drop-overlay" class="hidden absolute inset-0 rounded-2xl bg-primary/20 flex items-center justify-center">
+                            <div id="drop-overlay" class="hidden absolute inset-0 rounded-[10px] bg-primary/20 flex items-center justify-center">
                                 <span class="material-symbols-outlined text-5xl text-primary animate-bounce">file_download</span>
                             </div>
                         </div>
@@ -162,7 +162,7 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl font-black shadow-xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-10 uppercase tracking-widest text-sm">
+                <button type="submit" class="w-full bg-primary text-white py-5 rounded-[10px] font-black shadow-xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 mt-10 uppercase tracking-widest text-sm">
                     <span class="material-symbols-outlined text-xl">save</span>
                     {{ __('CREAR CATEGORIA') }}
                 </button>
@@ -173,15 +173,15 @@
 
 <!-- Info / Error Alert Modal -->
 <div id="info-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300">
-        <div class="w-16 h-16 bg-primary/10 rounded-3xl flex items-center justify-center mb-6 mx-auto">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-[10px] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300">
+        <div class="w-16 h-16 bg-primary/10 rounded-[10px] flex items-center justify-center mb-6 mx-auto">
             <span id="info-modal-icon" class="material-symbols-outlined text-3xl text-primary">info</span>
         </div>
         <div class="text-center mb-8">
             <h3 id="info-modal-title" class="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight mb-2">{{ __('Avís') }}</h3>
             <p id="info-modal-msg" class="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed"></p>
         </div>
-        <button id="info-modal-close" class="w-full bg-primary text-white py-4 rounded-2xl font-black hover:bg-primary-dim transition-all uppercase tracking-widest text-xs shadow-lg shadow-primary/20">
+        <button id="info-modal-close" class="w-full bg-primary text-white py-4 rounded-[10px] font-black hover:bg-primary-dim transition-all uppercase tracking-widest text-xs shadow-lg shadow-primary/20">
             {{ __('D\'acord') }}
         </button>
     </div>
@@ -189,8 +189,8 @@
 
 <!-- Delete Confirmation Modal -->
 <div id="delete-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300">
-        <div class="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-3xl flex items-center justify-center mb-8 mx-auto">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[10px] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300">
+        <div class="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-[10px] flex items-center justify-center mb-8 mx-auto">
             <span class="material-symbols-outlined text-4xl text-red-500">warning</span>
         </div>
         <div class="text-center mb-10">
@@ -203,10 +203,10 @@
             </p>
         </div>
         <div class="flex flex-col gap-4">
-            <button id="confirm-delete" class="w-full bg-red-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs">
+            <button id="confirm-delete" class="w-full bg-red-500 text-white py-4 rounded-[10px] font-black shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs">
                 {{ __('SÍ, ELIMINAR') }}
             </button>
-            <button id="cancel-delete" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-4 rounded-2xl font-black hover:bg-slate-100 transition-all uppercase tracking-widest text-xs border border-slate-100 dark:border-slate-700">
+            <button id="cancel-delete" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-4 rounded-[10px] font-black hover:bg-slate-100 transition-all uppercase tracking-widest text-xs border border-slate-100 dark:border-slate-700">
                 {{ __('CANCEL·LAR') }}
             </button>
         </div>
@@ -215,13 +215,13 @@
 
 <!-- Edit Category Modal -->
 <div id="edit-cat-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300 overflow-y-auto max-h-[90vh]">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[10px] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300 overflow-y-auto max-h-[90vh]">
         <div class="flex justify-between items-center mb-8">
             <div>
                 <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Editar Categoria') }}</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ __('Modifica les dades d\'aquesta categoria.') }}</p>
             </div>
-            <button id="close-edit-cat-modal" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all">
+            <button id="close-edit-cat-modal" class="w-12 h-12 flex items-center justify-center rounded-[10px] bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
@@ -233,11 +233,11 @@
                 <div class="space-y-4">
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Nom de la Categoria') }}</label>
-                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all dark:text-slate-100 outline-none font-medium" id="edit-cat-name" type="text" required/>
+                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all dark:text-slate-100 outline-none font-medium" id="edit-cat-name" type="text" required/>
                     </div>
                     <div class="space-y-1.5 focus-within:z-10 relative">
                         <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Descripció') }}</label>
-                        <textarea class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all dark:text-slate-100 outline-none font-medium resize-none" id="edit-cat-description" rows="3"></textarea>
+                        <textarea class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all dark:text-slate-100 outline-none font-medium resize-none" id="edit-cat-description" rows="3"></textarea>
                     </div>
                 </div>
 
@@ -246,15 +246,15 @@
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Color') }}</label>
                         <div class="flex gap-3">
-                            <div id="edit-color-preview" class="w-12 h-12 rounded-2xl shadow-lg border-4 border-white dark:border-slate-800 cursor-pointer transition-transform hover:scale-110 active:scale-95 shrink-0" style="background-color: #5D3FD3;"></div>
-                            <input class="flex-1 bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all dark:text-slate-100 outline-none font-mono font-bold" id="edit-cat-color" type="text" value="#5D3FD3" maxlength="7"/>
+                            <div id="edit-color-preview" class="w-12 h-12 rounded-[10px] shadow-lg border-4 border-white dark:border-slate-800 cursor-pointer transition-transform hover:scale-110 active:scale-95 shrink-0" style="background-color: #5D3FD3;"></div>
+                            <input class="flex-1 bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all dark:text-slate-100 outline-none font-mono font-bold" id="edit-cat-color" type="text" value="#5D3FD3" maxlength="7"/>
                             <input class="hidden" id="edit-cat-color-picker" type="color" value="#5D3FD3"/>
                         </div>
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Icona Seleccionada') }}</label>
-                        <div class="flex items-center gap-4 bg-[#f0e3ff] dark:bg-slate-800/50 rounded-2xl px-5 py-2.5">
-                            <div id="edit-icon-preview-box" class="w-10 h-10 rounded-xl bg-white dark:bg-slate-700 flex items-center justify-center text-primary shadow-sm overflow-hidden">
+                        <div class="flex items-center gap-4 bg-[#f0e3ff] dark:bg-slate-800/50 rounded-[10px] px-5 py-2.5">
+                            <div id="edit-icon-preview-box" class="w-10 h-10 rounded-[10px] bg-white dark:bg-slate-700 flex items-center justify-center text-primary shadow-sm overflow-hidden">
                                 <span class="material-symbols-outlined text-2xl">category</span>
                             </div>
                             <span id="edit-icon-name" class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">{{ __('Cap icona seleccionada') }}</span>
@@ -267,7 +267,7 @@
             <!-- Icon Selection Grid -->
             <div class="space-y-3">
                 <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Canviar Icona') }}</label>
-                <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-4">
+                <div class="bg-slate-50 dark:bg-slate-800/50 rounded-[10px] p-4">
                     <div class="flex flex-row gap-3 overflow-x-auto pb-4 edit-icon-grid icon-grid-scroll custom-scrollbar pr-2">
                         @php
                             $materialIcons = [
@@ -281,32 +281,32 @@
                                 'church', 'synagogue', 'mosque', 'castle', 'fort',
                                 'photo_camera', 'wb_sunny', 'night_shelter', 'anchor', 'forest',
                             ];
-                            // Re-calculate custom icons to ensure they are available in this scope
+                            // Extract existing custom icons from categories (globally to bypass pagination)
                             $editCustomIcons = \App\Models\Category::pluck('icon')
                                 ->filter(fn($icon) => $icon && str_starts_with($icon, 'category-icons/'))
                                 ->unique();
                         @endphp
                         @foreach($materialIcons as $icon)
-                            <button type="button" class="edit-icon-opt aspect-square h-12 flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600 shrink-0" data-icon="{{ $icon }}" title="{{ $icon }}">
+                            <button type="button" class="edit-icon-opt aspect-square h-12 flex items-center justify-center rounded-[10px] bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600 shrink-0" data-icon="{{ $icon }}" title="{{ $icon }}">
                                 <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">{{ $icon }}</span>
                             </button>
                         @endforeach
 
                         @foreach($editCustomIcons as $cIcon)
-                            <button type="button" class="edit-icon-opt aspect-square h-12 flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600 shrink-0 overflow-hidden p-1" data-icon="{{ $cIcon }}" title="{{ $cIcon }}">
-                                <img src="{{ asset('storage/' . $cIcon) }}" class="w-full h-full object-contain filter-slate-400" alt="custom icon">
+                            <button type="button" class="edit-icon-opt aspect-square h-12 flex items-center justify-center rounded-[10px] bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600 shrink-0 overflow-hidden" data-icon="{{ $cIcon }}" title="{{ $cIcon }}">
+                                <img src="{{ asset('storage/' . $cIcon) }}" class="w-1/2 h-1/2 object-contain filter-slate-400" alt="custom icon">
                             </button>
                         @endforeach
                         
                         <!-- Upload Slot -->
                         <div class="relative shrink-0">
-                            <input type="file" id="edit-custom-icon-file" class="hidden" accept="image/png,image/jpeg,image/webp,image/svg+xml">
-                            <button type="button" id="edit-btn-custom-icon" class="aspect-square h-12 flex items-center justify-center rounded-xl bg-white dark:bg-white/10 border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary hover:border-primary/50 transition-all group overflow-hidden" title="{{ __('Pujar icona personalitzada') }}">
+                            <input type="file" id="edit-custom-icon-file" class="hidden" accept=".svg,image/svg+xml">
+                            <button type="button" id="edit-btn-custom-icon" class="aspect-square h-12 flex items-center justify-center rounded-[10px] bg-white dark:bg-white/10 border-2 border-dashed border-slate-200 dark:border-slate-700 text-slate-400 hover:text-primary hover:border-primary/50 transition-all group overflow-hidden" title="{{ __('Pujar icona personalitzada') }}">
                                 <div id="edit-custom-icon-placeholder" class="flex items-center justify-center">
                                     <span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform">add_a_photo</span>
                                 </div>
-                                <div id="edit-custom-icon-preview-thumb" class="hidden w-full h-full p-1">
-                                    <img id="edit-custom-icon-img" src="" class="w-full h-full object-contain rounded-lg filter-primary" alt="custom">
+                                <div id="edit-custom-icon-preview-thumb" class="hidden w-full h-full flex items-center justify-center">
+                                    <img id="edit-custom-icon-img" src="" class="w-1/2 h-1/2 object-contain filter-primary" alt="custom">
                                 </div>
                             </button>
                         </div>
@@ -316,7 +316,7 @@
             </div>
 
             <div class="pt-4">
-                <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl font-black shadow-xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm">
+                <button type="submit" class="w-full bg-primary text-white py-5 rounded-[10px] font-black shadow-xl shadow-primary/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 uppercase tracking-widest text-sm">
                     <span class="material-symbols-outlined text-xl">save</span>
                     {{ __('GUARDAR CANVIS') }}
                 </button>
@@ -527,6 +527,10 @@
         });
 
         function applyCustomIcon(file) {
+            if (file.type !== 'image/svg+xml' && !file.name.toLowerCase().endsWith('.svg')) {
+                showAlert('{{ __("Format Incorrecte") }}', '{{ __("Només s\\'accepten fitxers SVGs per a les icones.") }}', 'error');
+                return;
+            }
             customIconFile = file;
             iconInput.value = '__custom__';
             const reader = new FileReader();
@@ -547,7 +551,7 @@
                     existing.type = 'button';
                     existing.title = file.name;
                     existing.dataset.icon = '__custom__';
-                    existing.className = 'icon-opt aspect-square flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600 overflow-hidden p-0.5';
+                    existing.className = 'icon-opt aspect-square flex items-center justify-center rounded-[10px] bg-white dark:bg-slate-700 text-slate-400 hover:text-primary hover:border-primary/30 transition-all border border-slate-100 dark:border-slate-600 overflow-hidden p-0.5';
                     // Insert before the upload slot button at the end
                     grid.insertBefore(existing, document.getElementById('btn-custom-icon'));
                     // Make it selectable like any other icon-opt
@@ -556,7 +560,7 @@
                         iconInput.value = '__custom__';
                     });
                 }
-                existing.innerHTML = `<img src="${dataUrl}" class="w-full h-full object-contain rounded-lg filter-white" alt="custom icon">`;
+                existing.innerHTML = `<img src="${dataUrl}" class="w-1/2 h-1/2 object-contain filter-white" alt="custom icon">`;
                 // Auto-select the newly added button
                 selectIconBtn(existing);
             };
@@ -589,8 +593,8 @@
             dropOverlay.classList.add('hidden');
             dropZone.classList.remove('border-primary');
             const file = e.dataTransfer.files[0];
-            if (file && (file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg'))) applyCustomIcon(file);
-            else if (file) showAlert('{{ __("Format no vàlid") }}', '{{ __("Tria una imatge PNG, JPG, WEBP o SVG.") }}', 'warning');
+            if (file && (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg'))) applyCustomIcon(file);
+            else if (file) showAlert('{{ __("Format no vàlid") }}', '{{ __("Tria una icona en format SVG.") }}', 'warning');
         });
 
         // --- Edit Modal Logic ---
@@ -626,7 +630,7 @@
 
         function updateEditIconPreview(icon) {
             if (icon && icon.startsWith('category-icons/')) {
-                editIconPreviewBox.innerHTML = `<img src="/storage/${icon}" class="w-full h-full object-contain filter-primary">`;
+                editIconPreviewBox.innerHTML = `<img src="/storage/${icon}" class="w-1/2 h-1/2 object-contain filter-primary">`;
                 editIconNameDisp.textContent = icon.split('/').pop();
             } else {
                 editIconPreviewBox.innerHTML = `<span class="material-symbols-outlined text-2xl">${icon || 'category'}</span>`;
@@ -686,6 +690,10 @@
         editFileInput.onchange = function() {
             if (this.files[0]) {
                 const file = this.files[0];
+                if (file.type !== 'image/svg+xml' && !file.name.toLowerCase().endsWith('.svg')) {
+                    showAlert('{{ __("Format Incorrecte") }}', '{{ __("Només s\\'accepten fitxers SVGs.") }}', 'error');
+                    return;
+                }
                 editCustomIconFileEdit = file;
                 editIconInput.value = '__custom__';
                 
@@ -694,7 +702,7 @@
                     document.getElementById('edit-custom-icon-img').src = e.target.result;
                     document.getElementById('edit-custom-icon-preview-thumb').classList.remove('hidden');
                     document.getElementById('edit-custom-icon-placeholder').classList.add('hidden');
-                    editIconPreviewBox.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-contain filter-primary">`;
+                    editIconPreviewBox.innerHTML = `<img src="${e.target.result}" class="w-1/2 h-1/2 object-contain filter-primary">`;
                     editIconNameDisp.textContent = file.name;
                     document.getElementById('edit-custom-icon-filename').textContent = file.name;
                     document.getElementById('edit-custom-icon-filename').classList.remove('hidden');

@@ -38,7 +38,9 @@ class AdminController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('places', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('places', $filename, 'public');
             $validated['image'] = $path;
         }
 
@@ -56,11 +58,18 @@ class AdminController extends Controller
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|max:2048'
+            'image' => 'nullable|image|max:2048',
+            'remove_image' => 'nullable'
         ]);
 
+        if ($request->input('remove_image') == '1') {
+            $validated['image'] = null;
+        }
+
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('places', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('places', $filename, 'public');
             $validated['image'] = $path;
         }
 
@@ -123,7 +132,9 @@ class AdminController extends Controller
 
         // If a custom icon image was uploaded, store it and use its path as the icon value
         if ($request->hasFile('icon_image')) {
-            $path = $request->file('icon_image')->store('category-icons', 'public');
+            $file = $request->file('icon_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('category-icons', $filename, 'public');
             $validated['icon'] = $path;
         }
 
@@ -145,7 +156,9 @@ class AdminController extends Controller
         ]);
 
         if ($request->hasFile('icon_image')) {
-            $path = $request->file('icon_image')->store('category-icons', 'public');
+            $file = $request->file('icon_image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('category-icons', $filename, 'public');
             $validated['icon'] = $path;
         }
 
@@ -174,6 +187,94 @@ class AdminController extends Controller
         \App\Models\Place::where('category_id', $category->id)->update(['category_id' => $fallback->id]);
 
         $category->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    // ── User Management ───────────────────────────────────────────────────
+
+    public function manageUsers(Request $request)
+    {
+        $search = $request->input('search');
+        $roleFilter = $request->input('role');
+
+        $query = \App\Models\User::withCount('groups');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($roleFilter && in_array($roleFilter, ['admin', 'user'])) {
+            $query->where('role', $roleFilter);
+        }
+
+        $users = $query->latest()->paginate(7)->appends([
+            'search' => $search,
+            'role'   => $roleFilter,
+        ]);
+
+        // Stats for header cards
+        $totalUsers  = \App\Models\User::count();
+        $totalGroups = \App\Models\Group::count();
+        $totalGymkhanas = \App\Models\Gymkhana::count();
+
+        if ($request->ajax()) {
+            return view('admin.partials.users-list', compact('users', 'search', 'roleFilter'))->render();
+        }
+
+        return view('admin.users', compact('users', 'search', 'roleFilter', 'totalUsers', 'totalGroups', 'totalGymkhanas'));
+    }
+
+    public function storeUser(Request $request)
+    {
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role'     => 'required|in:admin,user',
+        ]);
+
+        $validated['password'] = bcrypt($validated['password']);
+
+        $user = \App\Models\User::create($validated);
+
+        return response()->json(['success' => true, 'user' => $user]);
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $id,
+            'role'     => 'required|in:admin,user',
+            'password' => 'nullable|string|min:8',
+        ]);
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = bcrypt($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return response()->json(['success' => true, 'user' => $user]);
+    }
+
+    public function destroyUser($id)
+    {
+        // Prevent self-deletion
+        if (auth()->id() == $id) {
+            return response()->json(['success' => false, 'message' => 'No pots eliminar el teu propi compte.'], 403);
+        }
+
+        $user = \App\Models\User::findOrFail($id);
+        $user->delete();
 
         return response()->json(['success' => true]);
     }

@@ -18,7 +18,7 @@
             <!-- Left Column -->
             <div class="col-span-12 lg:col-span-4 space-y-8">
                 <!-- User Card -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-center">
+                <div class="bg-white dark:bg-slate-900 rounded-[10px] p-10 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-center">
                     <div class="relative mb-6">
                         <div class="w-36 h-36 rounded-full overflow-hidden border-4 border-slate-50 dark:border-slate-800 shadow-lg bg-primary flex items-center justify-center">
                             @if(Auth::user()->profile_photo)
@@ -46,7 +46,7 @@
                 </div>
 
                 <!-- Statistics Card -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-sm border border-slate-100 dark:border-slate-800">
+                <div class="bg-white dark:bg-slate-900 rounded-[10px] p-8 shadow-sm border border-slate-100 dark:border-slate-800">
                     <h4 class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-6">{{ __('Estadístiques') }}</h4>
                     
                     <div class="space-y-6">
@@ -69,7 +69,7 @@
             <!-- Right Column -->
             <div class="col-span-12 lg:col-span-8 space-y-8">
                 <!-- Informació Personal Card -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 shadow-sm border border-slate-100 dark:border-slate-800">
+                <div class="bg-white dark:bg-slate-900 rounded-[10px] p-10 shadow-sm border border-slate-100 dark:border-slate-800">
                     <h4 class="text-xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-3 mb-10">
                         <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">person_edit</span>
                         {{ __('Informació Personal') }}
@@ -79,18 +79,18 @@
                         <!-- Nom -->
                         <div class="space-y-3">
                             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">{{ __('Nom') }}</label>
-                            <input name="name" type="text" value="{{ explode(' ', Auth::user()->name)[0] }}" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-6 py-4 focus:ring-2 focus:ring-primary/20 transition-all dark:text-slate-100 font-medium"/>
+                            <input name="name" type="text" value="{{ explode(' ', Auth::user()->name)[0] }}" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-6 py-4 focus:ring-2 focus:ring-primary/20 transition-all dark:text-slate-100 font-medium"/>
                         </div>
                         <!-- Cognoms -->
                         <div class="space-y-3">
                             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">{{ __('Cognoms') }}</label>
-                            <input name="surname" type="text" value="{{ count(explode(' ', Auth::user()->name)) > 1 ? implode(' ', array_slice(explode(' ', Auth::user()->name), 1)) : 'Vila' }}" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-6 py-4 focus:ring-2 focus:ring-primary/20 transition-all dark:text-slate-100 font-medium"/>
+                            <input name="surname" type="text" value="{{ count(explode(' ', Auth::user()->name)) > 1 ? implode(' ', array_slice(explode(' ', Auth::user()->name), 1)) : 'Vila' }}" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-6 py-4 focus:ring-2 focus:ring-primary/20 transition-all dark:text-slate-100 font-medium"/>
                         </div>
                         <!-- Correu -->
                         <div class="col-span-1 md:col-span-2 space-y-3">
                             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">{{ __('Correu Electrònic') }}</label>
                             <div class="relative">
-                                <input name="email" type="email" value="{{ Auth::user()->email }}" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-6 py-4 focus:ring-2 focus:ring-primary/20 transition-all dark:text-slate-100 font-medium"/>
+                                <input name="email" type="email" value="{{ Auth::user()->email }}" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-6 py-4 focus:ring-2 focus:ring-primary/20 transition-all dark:text-slate-100 font-medium"/>
                                 <div class="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 bg-primary text-white rounded-full flex items-center justify-center">
                                     <span class="material-symbols-outlined text-[12px] font-bold">check</span>
                                 </div>
@@ -100,7 +100,7 @@
                         <div class="col-span-1 md:col-span-2 space-y-3">
                             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">{{ __('Contrasenya') }}</label>
                             <div class="relative flex items-center">
-                                <input type="password" value="••••••••••••" readonly class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-6 py-4 dark:text-slate-400 font-mono tracking-widest"/>
+                                <input type="password" value="••••••••••••" readonly class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-6 py-4 dark:text-slate-400 font-mono tracking-widest"/>
                                 <button type="button" class="absolute right-5 text-[10px] font-black text-primary uppercase tracking-widest hover:underline">{{ __('Canviar') }}</button>
                             </div>
                         </div>
@@ -108,7 +108,7 @@
                 </div>
 
                 <!-- Preferències Card -->
-                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 shadow-sm border border-slate-100 dark:border-slate-800">
+                <div class="bg-white dark:bg-slate-900 rounded-[10px] p-10 shadow-sm border border-slate-100 dark:border-slate-800">
                     <h4 class="text-xl font-black text-slate-900 dark:text-slate-50 flex items-center gap-3 mb-8">
                         <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">tune</span>
                         {{ __('Preferències') }}
@@ -119,7 +119,7 @@
                             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">{{ __('Idioma Preferit') }}</label>
                             
                             <div class="relative group w-full">
-                                <button type="button" class="w-full flex items-center justify-between p-4 bg-[#f0e3ff] dark:bg-slate-800/50 rounded-2xl border-2 border-transparent hover:border-primary/20 transition-all text-sm font-bold text-slate-700 dark:text-slate-200">
+                                <button type="button" class="w-full flex items-center justify-between p-4 bg-[#f0e3ff] dark:bg-slate-800/50 rounded-[10px] border-2 border-transparent hover:border-primary/20 transition-all text-sm font-bold text-slate-700 dark:text-slate-200">
                                     <div class="flex items-center gap-3">
                                         <span class="material-symbols-outlined text-primary">language</span>
                                         <span>{{ app()->getLocale() == 'ca' ? 'Català' : (app()->getLocale() == 'es' ? 'Español' : 'English') }}</span>
@@ -127,7 +127,7 @@
                                     <span class="material-symbols-outlined">expand_more</span>
                                 </button>
                                 <div class="absolute left-0 top-full w-full h-3 z-40 hidden group-hover:block"></div>
-                                <div class="absolute left-0 top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-800 hidden group-hover:block overflow-hidden z-50 transition-all duration-300">
+                                <div class="absolute left-0 top-full mt-2 w-full bg-white dark:bg-slate-800 rounded-[10px] shadow-xl border border-slate-100 dark:border-slate-800 hidden group-hover:block overflow-hidden z-50 transition-all duration-300">
                                     <a class="flex items-center gap-3 px-6 py-4 text-sm font-bold hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-colors" href="{{ route('lang.switch', 'ca') }}">
                                         <span class="material-symbols-outlined text-primary text-lg">{{ app()->getLocale() == 'ca' ? 'check_circle' : 'circle' }}</span>
                                         Català
@@ -151,8 +151,8 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div class="relative">
                                     <input type="radio" name="theme_select" id="theme_light" value="light" class="hidden radio-card" onchange="updateTheme(false)"/>
-                                    <label for="theme_light" id="label_light" class="flex flex-col items-center justify-center p-6 bg-[#f0e3ff] dark:bg-slate-800/50 rounded-2xl cursor-pointer border-2 border-transparent transition-all h-32 hover:bg-white dark:hover:bg-slate-800">
-                                        <div class="w-16 h-10 bg-white rounded-lg mb-3 shadow-sm flex items-center justify-center">
+                                    <label for="theme_light" id="label_light" class="flex flex-col items-center justify-center p-6 bg-[#f0e3ff] dark:bg-slate-800/50 rounded-[10px] cursor-pointer border-2 border-transparent transition-all h-32 hover:bg-white dark:hover:bg-slate-800">
+                                        <div class="w-16 h-10 bg-white rounded-[10px] mb-3 shadow-sm flex items-center justify-center">
                                             <span class="material-symbols-outlined text-amber-500">light_mode</span>
                                         </div>
                                         <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Clar') }}</span>
@@ -160,8 +160,8 @@
                                 </div>
                                 <div class="relative">
                                     <input type="radio" name="theme_select" id="theme_dark" value="dark" class="hidden radio-card" onchange="updateTheme(true)"/>
-                                    <label for="theme_dark" id="label_dark" class="flex flex-col items-center justify-center p-6 bg-[#f0e3ff] dark:bg-slate-800/50 rounded-2xl cursor-pointer border-2 border-transparent transition-all h-32 hover:bg-white dark:hover:bg-slate-800">
-                                        <div class="w-16 h-10 bg-slate-900 rounded-lg mb-3 shadow-sm flex items-center justify-center">
+                                    <label for="theme_dark" id="label_dark" class="flex flex-col items-center justify-center p-6 bg-[#f0e3ff] dark:bg-slate-800/50 rounded-[10px] cursor-pointer border-2 border-transparent transition-all h-32 hover:bg-white dark:hover:bg-slate-800">
+                                        <div class="w-16 h-10 bg-slate-900 rounded-[10px] mb-3 shadow-sm flex items-center justify-center">
                                             <span class="material-symbols-outlined text-violet-400">dark_mode</span>
                                         </div>
                                         <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{{ __('Fosc') }}</span>
@@ -176,8 +176,8 @@
 
         <!-- Footer Actions -->
         <div class="mt-12 mb-20 flex justify-end items-center gap-6">
-            <button type="button" class="px-8 py-3 rounded-2xl text-sm font-black text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all uppercase tracking-widest">{{ __('Descartar') }}</button>
-            <button type="submit" class="px-10 py-4 bg-primary text-white rounded-2xl text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">{{ __('Desar canvis') }}</button>
+            <button type="button" class="px-8 py-3 rounded-[10px] text-sm font-black text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-all uppercase tracking-widest">{{ __('Descartar') }}</button>
+            <button type="submit" class="px-10 py-4 bg-primary text-white rounded-[10px] text-sm font-black shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest">{{ __('Desar canvis') }}</button>
         </div>
     </form>
 </div>

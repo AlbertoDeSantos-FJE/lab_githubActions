@@ -55,5 +55,10 @@
     "Categoria": "Category",
     "Totes": "All",
     "Guardar Canvis": "Save changes",
-    "Imatge Nova (Opcional)": "New image (optional)"
+    "Imatge Nova (Opcional)": "New image (optional)",
+    "Arrossega la icona SVG aquí": "Upload custom icon",
+    "o fes clic per explorar": "or click to explore",
+    "Només format SVG": "SVG format only",
+    "Arrossega o selecciona una imatge": "Drag or select an image",
+    "PNG, JPG fins a 5MB": "PNG, JPG up to 5MB"
 }

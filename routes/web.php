@@ -44,9 +44,10 @@ Route::middleware(['auth'])->group(function () {
             return view('admin.gymkhanas');
         })->name('admin.gymkhanas');
 
-        Route::get('/manage-users', function() {
-            return view('admin.users');
-        })->name('admin.users');
+        Route::get('/manage-users', [AdminController::class, 'manageUsers'])->name('admin.users');
+        Route::post('/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
+        Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
+        Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
     });
 });
 Route::get('lang/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');

@@ -6,187 +6,282 @@
 @push('head')
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+    .custom-popup .leaflet-popup-content-wrapper {
+        padding: 0;
+        overflow: hidden;
+        border-radius: 10px;
+        background: transparent;
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    }
+    .custom-popup .leaflet-popup-content {
+        margin: 0;
+        width: 240px !important;
+    }
+    .custom-popup .leaflet-popup-tip {
+        display: none;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #5D3FD3;
+        border-radius: 5px;
+    }
+    .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #8b5cf6;
+    }
+    @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-bounce-slow {
+        animation: bounce-slow 2s infinite ease-in-out;
+    }
+</style>
 @endpush
 
 @section('content')
 <!-- Dashboard Layout -->
-<div class="flex flex-col gap-8">
+<div class="flex flex-col gap-4">
     <!-- Top Section: Map and Add Place -->
-    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch shrink-0 min-h-[600px]">
-        <!-- Central Map Section -->
-        <div class="xl:col-span-4 flex flex-col gap-4">
-            <div class="h-full bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden relative shadow-sm group border border-slate-100 dark:border-slate-800">
-                <div id="main-map" class="absolute inset-0 z-0"></div>
-            </div>
-        </div>
-        <!-- Add Place Form -->
-        <div class="xl:col-span-8 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col">
-            <div class="mb-4">
+    <div class="bg-white dark:bg-slate-900 rounded-[10px] shadow-sm border border-slate-100 dark:border-slate-800 transition-all duration-300">
+        <!-- Header Row (Clickable for toggle) -->
+        <div id="toggle-add-place" class="flex items-center justify-between cursor-pointer group px-8 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-t-[2.5rem] transition-all">
+            <div>
                 <h3 class="font-black text-xl text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Afegir Nou Lloc') }}</h3>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ __('Dades del nou punt d\'interès per a la ruta.') }}</p>
             </div>
-            
-            <form id="place-creation-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 flex-1">
-                <!-- Left Column -->
-                <div class="space-y-4 flex flex-col h-full">
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Nom del Lloc') }}</label>
-                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="place_name" placeholder="Ex: Restaurant L'H" type="text"/>
+            <span class="material-symbols-outlined text-3xl text-primary transition-transform duration-300 transform" id="add-place-icon">expand_more</span>
+        </div>
+
+        <!-- Togglable Content -->
+        <div id="add-place-content" class="px-8 pb-4 transition-all duration-300 overflow-hidden">
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch shrink-0 min-h-[500px]">
+                <!-- Central Map Section (1/3) -->
+                <div class="xl:col-span-4 flex flex-col">
+                    <div class="flex-1 rounded-[10px] overflow-hidden relative border border-slate-100 dark:border-slate-800 shadow-inner min-h-[500px]">
+                        <div id="main-map" class="absolute inset-0 z-0"></div>
                     </div>
-                    <div class="space-y-1.5">
-                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Adreça') }}</label>
-                        <div class="relative">
-                            <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="place_address" placeholder="Carrer de l'Hospitalet, 42" type="text"/>
-                            <button type="button" id="btn-search-coords" class="absolute right-4 top-2 text-primary text-xl hover:scale-110 transition-all">
-                                <span class="material-symbols-outlined">search</span>
+                </div>
+                <!-- Add Place Form (2/3) -->
+                <div class="xl:col-span-8 flex flex-col h-full">
+                    <form id="place-creation-form" class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 flex-1">
+                        <!-- Left Column (Column A) -->
+                        <div class="space-y-4 flex flex-col h-full">
+                            <div class="space-y-1.5">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Nom del Lloc') }}</label>
+                                <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="place_name" placeholder="Ex: Restaurant L'H" type="text"/>
+                            </div>
+                            <div class="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed px-1">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em]">{{ __('Adreça') }}</label>
+                                <div class="relative mt-1">
+                                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="place_address" placeholder="Carrer de l'Hospitalet, 42" type="text"/>
+                                    <button type="button" id="btn-search-coords" class="absolute right-4 top-2 text-primary text-xl hover:scale-110 transition-all">
+                                        <span class="material-symbols-outlined">search</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Latitud') }}</label>
+                                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-3 dark:text-slate-100 outline-none font-medium" id="place_lat" readonly placeholder="41.3597" type="text"/>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Longitud') }}</label>
+                                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-3 dark:text-slate-100 outline-none font-medium" id="place_lng" readonly placeholder="2.1003" type="text"/>
+                                </div>
+                            </div>
+                            <div class="space-y-2 flex-1 flex flex-col">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Categories') }}</label>
+                                <div id="place-categories" class="flex-1 bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] p-4 pr-2 overflow-y-auto grid grid-cols-2 gap-x-4 gap-y-2 custom-scrollbar max-h-[110px]"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column (Column B) -->
+                        <div class="space-y-4 flex flex-col h-full">
+                            <div class="space-y-1.5 flex-none">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Descripció') }}</label>
+                                <textarea class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium resize-none h-[80px]" id="place_description" placeholder="{{ __('Petita descripció del lloc...') }}"></textarea>
+                            </div>
+                            
+                            <!-- Drag & Drop Zone -->
+                            <div class="space-y-1.5 flex-1 flex flex-col">
+                                <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Imatge del Lloc') }}</label>
+                                <div id="drop-zone" class="relative flex-1 w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-2 border-dashed border-primary/20 rounded-[10px] flex flex-col items-center justify-center p-4 transition-all hover:bg-[#e8d5ff] dark:hover:bg-slate-800 hover:border-primary cursor-pointer group">
+                                    <input type="file" id="place_image" class="hidden" accept="image/*">
+                                    <div class="flex flex-col items-center gap-2 pointer-events-none">
+                                        <span class="material-symbols-outlined text-4xl text-primary animate-bounce-slow">cloud_upload</span>
+                                        <div class="text-center">
+                                            <p id="image-name" class="text-xs font-black text-slate-700 dark:text-slate-200">{{ __('Arrossega o selecciona una imatge') }}</p>
+                                            <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-1 uppercase">{{ __('PNG, JPG fins a 5MB') }}</p>
+                                        </div>
+                                    </div>
+                                    <div id="image-preview" class="hidden absolute inset-0 rounded-[10px] overflow-hidden bg-white dark:bg-slate-900 border-2 border-primary">
+                                        <img src="" class="w-full h-full object-cover">
+                                        <div class="absolute inset-0 bg-slate-900/10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+                                            <span class="material-symbols-outlined text-white text-3xl drop-shadow-lg">image</span>
+                                        </div>
+                                        <div class="absolute bottom-3 right-3 flex gap-2">
+                                            <button type="button" id="btn-delete-image" class="w-10 h-10 bg-red-500 text-white flex items-center justify-center rounded-[10px] shadow-lg border border-red-600/20 hover:scale-105 active:scale-95 transition-all">
+                                                <span class="material-symbols-outlined text-sm">delete</span>
+                                            </button>
+                                            <button type="button" id="btn-change-image" class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm text-primary font-black px-4 py-2 rounded-[10px] text-[10px] uppercase tracking-widest shadow-lg border border-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                                                <span class="material-symbols-outlined text-sm">cached</span>
+                                                {{ __('Canviar') }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bottom Row: Save Button -->
+                        <div class="md:col-span-2 pt-4">
+                            <button id="btn-save-place" type="button" class="w-full bg-primary text-white font-black py-4 rounded-[10px] flex items-center justify-center gap-2 hover:bg-primary-dim shadow-xl shadow-primary/30 transition-all active:scale-95 text-sm uppercase tracking-widest">
+                                <span class="material-symbols-outlined">add_location</span>
+                                {{ __('Guardar Punt') }}
                             </button>
                         </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Latitud') }}</label>
-                            <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 dark:text-slate-100 outline-none font-medium" id="place_lat" readonly placeholder="41.3597" type="text"/>
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Longitud') }}</label>
-                            <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 dark:text-slate-100 outline-none font-medium" id="place_lng" readonly placeholder="2.1003" type="text"/>
-                        </div>
-                    </div>
-                    <div class="space-y-2 flex-1 flex flex-col min-h-[140px]">
-                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Categories') }}</label>
-                        <div id="place-categories" class="flex-1 bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl p-4 overflow-y-auto grid grid-cols-2 gap-x-4 gap-y-2 custom-scrollbar"></div>
-                    </div>
+                    </form>
                 </div>
-
-                <!-- Right Column -->
-                <div class="space-y-4 flex flex-col h-full">
-                    <div class="space-y-1.5 flex-[2] flex flex-col min-h-[120px]">
-                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Descripció') }}</label>
-                        <textarea class="flex-1 w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium resize-none" id="place_description" placeholder="{{ __('Petita descripció del lloc...') }}"></textarea>
-                    </div>
-                    <div class="space-y-1.5 flex-none">
-                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Imatge del Lloc') }}</label>
-                        <div class="relative group/img">
-                            <input type="file" id="place_image" class="hidden" accept="image/*">
-                            <label for="place_image" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl px-5 py-3 flex items-center gap-3 cursor-pointer group-hover/img:bg-[#e8d5ff] dark:group-hover/img:bg-slate-800 transition-all">
-                                <span class="material-symbols-outlined text-primary">image</span>
-                                <span id="image-name" class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">{{ __('Selecciona una imatge...') }}</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <button id="btn-save-place" type="button" class="w-full bg-primary text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-dim shadow-xl shadow-primary/30 transition-all active:scale-95 text-sm uppercase tracking-widest flex-none">
-                        <span class="material-symbols-outlined">add_location</span>
-                        {{ __('Guardar Punt') }}
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
     <!-- Expanded Places List Section -->
-    <div class="flex flex-col gap-6 mt-12">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex flex-col gap-3 mt-6">
+        <div id="toggle-places-list" class="flex items-center justify-between cursor-pointer group transition-all">
             <div>
                 <h3 class="font-black text-3xl text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Llistat de Llocs') }}</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ __('Gestiona els elements existents a la base de dades.') }}</p>
             </div>
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="relative w-full md:w-48 group">
-                    <button id="filter-btn" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold rounded-2xl text-xs flex items-center justify-between gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-slate-100 dark:border-slate-800 shadow-sm">
-                        <span class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-lg text-primary">filter_alt</span>
-                            {{ __('Filtrar') }}
-                        </span>
-                        <span class="material-symbols-outlined text-lg">expand_more</span>
-                    </button>
-                    <div id="filter-dropdown" class="absolute right-0 top-full mt-1 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 hidden overflow-hidden z-20">
-                        <a class="block px-4 py-3 text-xs font-bold hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100" href="#" onclick="window.filterCategory(null); return false;">{{ __('Totes') }}</a>
+            <span class="material-symbols-outlined text-4xl text-primary transition-transform duration-300 transform" id="places-list-icon">expand_more</span>
+        </div>
+
+        <div id="places-list-content" class="flex flex-col gap-6 transition-all duration-300 overflow-hidden">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 w-full">
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <div class="relative w-full md:w-48 group">
+                        <button id="filter-btn" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold rounded-[10px] text-xs flex items-center justify-between gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-slate-100 dark:border-slate-800 shadow-sm">
+                            <span class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-lg text-primary">filter_alt</span>
+                                {{ __('Filtrar') }}
+                            </span>
+                            <span class="material-symbols-outlined text-lg">expand_more</span>
+                        </button>
+                        <div id="filter-dropdown" class="absolute left-0 top-full mt-1 w-full bg-white dark:bg-slate-800 rounded-[10px] shadow-xl border border-slate-100 dark:border-slate-700 hidden overflow-hidden z-20">
+                            <a class="block px-4 py-3 text-xs font-bold hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100" href="#" onclick="window.filterCategory(null); return false;">{{ __('Totes') }}</a>
+                        </div>
                     </div>
+                    <button class="px-6 py-2.5 bg-primary text-white font-black rounded-[10px] text-xs flex items-center gap-2 hover:bg-primary-dim transition-all shadow-sm">
+                        <span class="material-symbols-outlined text-lg">download</span>
+                        {{ __('Exportar') }}
+                    </button>
                 </div>
-                <button class="px-6 py-2.5 bg-primary text-white font-black rounded-2xl text-xs flex items-center gap-2 hover:bg-primary-dim transition-all shadow-sm">
-                    <span class="material-symbols-outlined text-lg">download</span>
-                    {{ __('Exportar') }}
-                </button>
+                <!-- Pagination Component aligned to the right -->
+                <div id="pagination-container" class="flex justify-end items-center gap-2 md:ml-auto"></div>
+            </div>
+
+            <div class="flex flex-col gap-3">
+                <!-- Header Row -->
+                <div class="grid grid-cols-12 gap-4 px-8 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    <div class="col-span-4">{{ __('Nom i Localització') }}</div>
+                    <div class="col-span-4">{{ __('Adreça') }}</div>
+                    <div class="col-span-2">{{ __('Categoria') }}</div>
+                    <div class="col-span-2 text-right">{{ __('Accions') }}</div>
+                </div>
+
+                <!-- List of Items -->
+                <div id="places-list" class="flex flex-col gap-3"></div>
             </div>
         </div>
-
-        <!-- Header Row -->
-        <div class="grid grid-cols-12 gap-4 px-8 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-            <div class="col-span-4">{{ __('Nom i Localització') }}</div>
-            <div class="col-span-4">{{ __('Adreça') }}</div>
-            <div class="col-span-2">{{ __('Categoria') }}</div>
-            <div class="col-span-2 text-right">{{ __('Accions') }}</div>
-        </div>
-
-        <!-- List of Items -->
-        <div id="places-list" class="flex flex-col gap-3"></div>
-
-        <!-- Pagination Component -->
-        <div id="pagination-container" class="flex justify-end items-center gap-2 mt-4 px-2"></div>
     </div>
 </div>
 
 <!-- Edit Place Modal -->
 <div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300 overflow-y-auto max-h-[90vh]">
-        <div class="flex justify-between items-center mb-8">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[10px] p-8 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300 overflow-y-auto max-h-[95vh]">
+        <div class="flex justify-between items-center mb-4">
             <div>
                 <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Editar Lloc d\'Interès') }}</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ __('Modifica les dades d\'aquest punt de la ruta.') }}</p>
             </div>
-            <button id="close-edit-modal" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all">
+            <button id="close-edit-modal" class="w-12 h-12 flex items-center justify-center rounded-[10px] bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
         
-        <form id="edit-place-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form id="edit-place-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
             <input type="hidden" id="edit_place_id">
-            <div class="space-y-4">
+            <input type="hidden" id="edit_remove_image" value="0">
+            <!-- Left Column -->
+            <div class="space-y-3 flex flex-col h-full">
                 <div class="space-y-1.5">
                     <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Nom del Lloc') }}</label>
-                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="edit_place_name" type="text" required/>
+                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-2.5 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="edit_place_name" type="text" required/>
                 </div>
                 <div class="space-y-1.5">
                     <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Adreça') }}</label>
-                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="edit_place_address" type="text"/>
+                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-2.5 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="edit_place_address" type="text"/>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Latitud') }}</label>
-                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 outline-none font-medium" id="edit_place_lat" type="text" required/>
+                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-2.5 outline-none font-medium" id="edit_place_lat" type="text" required/>
                     </div>
                     <div class="space-y-1.5">
                         <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Longitud') }}</label>
-                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 outline-none font-medium" id="edit_place_lng" type="text" required/>
+                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-2.5 outline-none font-medium" id="edit_place_lng" type="text" required/>
                     </div>
                 </div>
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Categoria') }}</label>
-                    <select id="edit_place_category" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium appearance-none">
-                    </select>
+                <div class="space-y-2 flex-1 flex flex-col">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Categories') }}</label>
+                    <div id="edit_place_categories" class="flex-1 bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] p-4 pr-2 overflow-y-auto grid grid-cols-2 gap-x-4 gap-y-2 custom-scrollbar max-h-[110px]"></div>
                 </div>
             </div>
-            <div class="space-y-4">
-                <div class="space-y-1.5 h-full flex flex-col">
+            <!-- Right Column -->
+            <div class="space-y-3 flex flex-col h-full">
+                <div class="space-y-1.5 flex-none">
                     <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Descripció') }}</label>
-                    <textarea class="flex-1 w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium resize-none min-h-[120px]" id="edit_place_description" rows="5"></textarea>
+                    <textarea class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-5 py-2.5 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium resize-none h-[60px]" id="edit_place_description" placeholder="{{ __('Petita descripció del lloc...') }}"></textarea>
                 </div>
-                <div class="space-y-1.5">
-                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Imatge Nova (Opcional)') }}</label>
-                    <input type="file" id="edit_place_image" class="hidden" accept="image/*">
-                    <label for="edit_place_image" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl px-5 py-3 flex items-center gap-3 cursor-pointer hover:bg-primary/5 transition-all mb-2">
-                        <span class="material-symbols-outlined text-primary">image</span>
-                        <span id="edit-image-name" class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">{{ __('Selecciona una imatge...') }}</span>
-                    </label>
-                    <div id="current-image-preview" class="hidden w-full h-32 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 relative group">
-                        <img src="" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-black uppercase tracking-widest">{{ __('Imatge Actual') }}</div>
+                
+                <div class="space-y-1.5 flex-1 flex flex-col">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Modificar Imatge') }}</label>
+                    <div id="edit-drop-zone" class="relative flex-1 w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-2 border-dashed border-primary/20 rounded-[10px] flex flex-col items-center justify-center p-3 transition-all hover:bg-[#e8d5ff] dark:hover:bg-slate-800 hover:border-primary cursor-pointer group">
+                        <input type="file" id="edit_place_image" class="hidden" accept="image/*">
+                        <div class="flex flex-col items-center gap-2 pointer-events-none">
+                            <span class="material-symbols-outlined text-4xl text-primary animate-bounce-slow">cloud_upload</span>
+                            <div class="text-center">
+                                <p id="edit-image-name" class="text-xs font-black text-slate-700 dark:text-slate-200">{{ __('Arrossega o selecciona una imatge') }}</p>
+                                <p class="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-1 uppercase">{{ __('PNG, JPG fins a 5MB') }}</p>
+                            </div>
+                        </div>
+                        <div id="current-image-preview" class="hidden absolute inset-0 rounded-[10px] overflow-hidden bg-white dark:bg-slate-900 border-2 border-primary">
+                            <img src="" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-slate-900/10 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
+                                <span class="material-symbols-outlined text-white text-3xl drop-shadow-lg">image</span>
+                            </div>
+                            <div class="absolute bottom-3 right-3 flex gap-2">
+                                <button type="button" id="btn-edit-delete-image" class="w-10 h-10 bg-red-500 text-white flex items-center justify-center rounded-[10px] shadow-lg border border-red-600/20 hover:scale-105 active:scale-95 transition-all">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                                <button type="button" id="btn-edit-change-image" class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm text-primary font-black px-4 py-2 rounded-[10px] text-[10px] uppercase tracking-widest shadow-lg border border-primary/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-sm">cached</span>
+                                    {{ __('Canviar') }}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="md:col-span-2 pt-6">
-                <button type="submit" class="w-full bg-primary text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-dim shadow-xl shadow-primary/30 transition-all active:scale-95 text-sm uppercase tracking-widest">
+            
+            <div class="md:col-span-2 pt-4">
+                <button type="submit" class="w-full bg-primary text-white font-black py-3 px-6 rounded-[10px] flex items-center justify-center gap-2 hover:bg-primary-dim shadow-xl shadow-primary/30 transition-all active:scale-95 text-sm uppercase tracking-widest">
                     <span class="material-symbols-outlined">save</span>
                     {{ __('Guardar Canvis') }}
                 </button>
@@ -197,8 +292,8 @@
 
 <!-- Delete Place Modal -->
 <div id="delete-place-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300">
-        <div class="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-3xl flex items-center justify-center mb-8 mx-auto">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[10px] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300">
+        <div class="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-[10px] flex items-center justify-center mb-8 mx-auto">
             <span class="material-symbols-outlined text-4xl text-red-500">warning</span>
         </div>
         <div class="text-center mb-10">
@@ -208,10 +303,10 @@
             </p>
         </div>
         <div class="flex flex-col gap-4">
-            <button id="confirm-delete-place" class="w-full bg-red-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs">
+            <button id="confirm-delete-place" class="w-full bg-red-500 text-white py-4 rounded-[10px] font-black shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs">
                 {{ __('SÍ, ELIMINAR') }}
             </button>
-            <button id="cancel-delete-place" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-4 rounded-2xl font-black hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-xs">
+            <button id="cancel-delete-place" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-4 rounded-[10px] font-black hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-xs">
                 {{ __('CANCEL·LAR') }}
             </button>
         </div>
@@ -222,6 +317,47 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', async function() {
+        // Collapsible Logic
+        const collapsibleStates = {};
+        function setupCollapsible(toggleId, contentId, iconId) {
+            const toggle = document.getElementById(toggleId);
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+            
+            collapsibleStates[contentId] = true; // Default expanded
+
+            window.refreshCollapsibleHeight = function(id) {
+                const c = document.getElementById(id);
+                if (c && collapsibleStates[id]) {
+                    c.style.maxHeight = c.scrollHeight + 'px';
+                }
+            };
+
+            toggle.addEventListener('click', () => {
+                collapsibleStates[contentId] = !collapsibleStates[contentId];
+                if (collapsibleStates[contentId]) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    content.style.opacity = '1';
+                    content.style.marginTop = '0.5rem';
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    content.style.maxHeight = '0px';
+                    content.style.opacity = '0';
+                    content.style.marginTop = '0px';
+                    icon.style.transform = 'rotate(-90deg)';
+                }
+            });
+
+            // Initialize expanded
+            content.style.transition = 'all 0.4s ease-in-out';
+            content.style.maxHeight = content.scrollHeight + 'px';
+            content.style.opacity = '1';
+            content.style.marginTop = '0.5rem';
+        }
+
+        setupCollapsible('toggle-add-place', 'add-place-content', 'add-place-icon');
+        setupCollapsible('toggle-places-list', 'places-list-content', 'places-list-icon');
+
         const HOST = '{{ url('/admin') }}'; 
         let map;
         try {
@@ -270,23 +406,49 @@
         let currentPage = 1;
         let itemsPerPage = 5;
 
-        async function loadCategories() {
+        async function loadCategories(selectedId = null) {
             try {
                 const res = await fetch(`${HOST}/categories`);
                 if (!res.ok) throw new Error("HTTP error " + res.status);
                 categoriesData = await res.json();
                 
                 const catsContainer = document.getElementById('place-categories');
+                const editCatsContainer = document.getElementById('edit_place_categories');
                 const dropdown = document.getElementById('filter-dropdown');
-                
+
                 if (catsContainer) catsContainer.innerHTML = '';
+                if (editCatsContainer) editCatsContainer.innerHTML = '';
                 
-                categoriesData.forEach(cat => {
+                // Sort categories: "Sense categoria" first, then selectedId, then alpha
+                categoriesData.sort((a, b) => {
+                    const aName = a.name.toLowerCase();
+                    const bName = b.name.toLowerCase();
+                    const isASense = aName.includes('sense categoria') || aName.includes('sin categoría');
+                    const isBSense = bName.includes('sense categoria') || bName.includes('sin categoría');
+                    
+                    if (isASense) return -1;
+                    if (isBSense) return 1;
+                    if (selectedId) {
+                        if (a.id == selectedId) return -1;
+                        if (b.id == selectedId) return 1;
+                    }
+                    return a.name.localeCompare(b.name);
+                });
+
+                categoriesData.forEach((cat, index) => {
+                    const isChecked = selectedId ? (cat.id == selectedId) : (index === 0);
                     if (catsContainer) {
                         catsContainer.innerHTML += `
-                        <label class="flex items-center gap-3 p-2 hover:bg-white dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors group">
-                            <input class="rounded-lg border-slate-300 dark:border-slate-600 text-primary focus:ring-primary h-5 w-5 cat-checkbox dark:bg-slate-700" type="checkbox" value="${cat.id}"/>
-                            <span class="text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">${cat.name}</span>
+                        <label class="flex items-center gap-2 p-1 hover:bg-white dark:hover:bg-slate-800 rounded-[10px] cursor-pointer transition-colors group">
+                            <input class="rounded-[10px] border-slate-300 dark:border-slate-600 text-primary focus:ring-primary h-4 w-4 cat-checkbox dark:bg-slate-700" type="checkbox" value="${cat.id}" ${isChecked ? 'checked' : ''}/>
+                            <span class="text-[11px] font-black text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors truncate">${cat.name}</span>
+                        </label>`;
+                    }
+                    if (editCatsContainer) {
+                        editCatsContainer.innerHTML += `
+                        <label class="flex items-center gap-2 p-1 hover:bg-white dark:hover:bg-slate-800 rounded-[10px] cursor-pointer transition-colors group">
+                            <input class="rounded-[10px] border-slate-300 dark:border-slate-600 text-primary focus:ring-primary h-4 w-4 edit-cat-checkbox dark:bg-slate-700" type="checkbox" value="${cat.id}" ${isChecked ? 'checked' : ''}/>
+                            <span class="text-[11px] font-black text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors truncate">${cat.name}</span>
                         </label>`;
                     }
                     
@@ -294,6 +456,8 @@
                         dropdown.innerHTML += `<a class="block px-4 py-3 text-xs font-bold hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100" href="#" onclick="window.filterCategory(${cat.id}); return false;">${cat.name}</a>`;
                     }
                 });
+                // Refresh height after categories are loaded
+                setTimeout(() => window.refreshCollapsibleHeight('add-place-content'), 100);
             } catch (e) {
                 console.error("Failed to load categories", e);
             }
@@ -395,25 +559,31 @@
                     icon: createCustomIcon(category)
                 }).addTo(map);
                 m.bindPopup(`
-                    <div class="p-2 min-w-[200px]">
-                        <div class="flex justify-between items-start mb-2">
-                            <h5 class="font-black text-slate-900 dark:text-slate-100 text-lg leading-tight pr-4">${place.name}</h5>
-                            <div class="flex gap-1 shrink-0">
-                                <button class="edit-btn-map w-8 h-8 flex items-center justify-center bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-all active:scale-90" data-id="${place.id}">
-                                    <span class="material-symbols-outlined text-base">edit</span>
-                                </button>
-                                <button class="delete-btn-map w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90" data-id="${place.id}">
-                                    <span class="material-symbols-outlined text-base">delete</span>
-                                </button>
+                    <div class="p-0 min-w-[240px] overflow-hidden rounded-[10px] bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
+                        ${place.image ? `
+                        <div class="w-full h-32 overflow-hidden border-b border-slate-100 dark:border-slate-800">
+                            <img src="/storage/${place.image}" class="w-full h-full object-cover">
+                        </div>` : ''}
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h5 class="font-black text-slate-900 dark:text-slate-100 text-lg leading-tight pr-4">${place.name}</h5>
+                                <div class="flex gap-1 shrink-0">
+                                    <button class="edit-btn-map w-8 h-8 flex items-center justify-center bg-primary/10 text-primary rounded-[10px] hover:bg-primary hover:text-white transition-all active:scale-90" data-id="${place.id}">
+                                        <span class="material-symbols-outlined text-base">edit</span>
+                                    </button>
+                                    <button class="delete-btn-map w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-[10px] hover:bg-red-500 hover:text-white transition-all active:scale-90" data-id="${place.id}">
+                                        <span class="material-symbols-outlined text-base">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3 font-medium line-clamp-2">${place.description || ''}</p>
+                            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
+                                <span class="material-symbols-outlined text-sm">location_on</span>
+                                ${place.address || ''}
                             </div>
                         </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3 font-medium line-clamp-2">${place.description || ''}</p>
-                        <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
-                            <span class="material-symbols-outlined text-sm">location_on</span>
-                            ${place.address || ''}
-                        </div>
                     </div>
-                `, { closeButton: false });
+                `, { closeButton: false, className: 'custom-popup' });
                 activeMarkers.push(m);
                 markersByPlaceId[place.id] = m;
             });
@@ -423,9 +593,9 @@
                 const iconName = place.category && place.category.icon ? place.category.icon : 'location_on';
                 
                 listContainer.innerHTML += `
-                <div class="place-row grid grid-cols-12 gap-4 items-center bg-white dark:bg-slate-900 px-8 py-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:border-primary/30 hover:shadow-md transition-all group cursor-pointer" data-place-id="${place.id}">
+                <div class="place-row grid grid-cols-12 gap-4 items-center bg-white dark:bg-slate-900 px-8 py-4 rounded-[10px] shadow-sm border border-slate-100 dark:border-slate-800 hover:border-primary/30 hover:shadow-md transition-all group cursor-pointer" data-place-id="${place.id}">
                     <div class="col-span-4 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-primary/10 dark:bg-slate-800 flex items-center justify-center text-primary dark:text-slate-300 shrink-0 group-hover:bg-primary group-hover:text-white transition-all">
+                        <div class="w-10 h-10 rounded-[10px] bg-primary/10 dark:bg-slate-800 flex items-center justify-center text-primary dark:text-slate-300 shrink-0 group-hover:bg-primary group-hover:text-white transition-all">
                             <span class="material-symbols-outlined text-xl">${iconName}</span>
                         </div>
                         <div class="truncate">
@@ -438,13 +608,13 @@
                         ${place.address || 'Sense adreça'}
                     </div>
                     <div class="col-span-2">
-                        <span class="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/10">${catName}</span>
+                        <span class="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-[10px] border border-primary/10">${catName}</span>
                     </div>
                     <div class="col-span-2 flex justify-end gap-1">
-                        <button class="edit-btn w-9 h-9 flex items-center justify-center hover:bg-primary/10 text-primary rounded-xl transition-colors" data-id="${place.id}">
+                        <button class="edit-btn w-9 h-9 flex items-center justify-center hover:bg-primary/10 text-primary rounded-[10px] transition-colors" data-id="${place.id}">
                             <span class="material-symbols-outlined text-lg">edit</span>
                         </button>
-                        <button class="delete-btn w-9 h-9 flex items-center justify-center hover:bg-red-50 text-red-500 rounded-xl transition-colors" data-id="${place.id}">
+                        <button class="delete-btn w-9 h-9 flex items-center justify-center hover:bg-red-50 text-red-500 rounded-[10px] transition-colors" data-id="${place.id}">
                             <span class="material-symbols-outlined text-lg">delete</span>
                         </button>
                     </div>
@@ -452,6 +622,9 @@
             });
 
             renderPagination(totalPages);
+            
+            // Refresh height after places are rendered
+            setTimeout(() => window.refreshCollapsibleHeight('places-list-content'), 100);
 
             if (activeMarkers.length > 0 && (searchQuery !== "" || currentFilter !== null)) {
                 const group = new L.featureGroup(activeMarkers);
@@ -511,29 +684,34 @@
                 }
             });
 
-            function openEditModal(id) {
+            async function openEditModal(id) {
                 const place = placesData.find(p => p.id == id);
                 if (!place) return;
 
                 document.getElementById('edit_place_id').value = place.id;
                 document.getElementById('edit_place_name').value = place.name;
-                document.getElementById('edit_place_address').value = place.address || '';
                 document.getElementById('edit_place_description').value = place.description || '';
+                document.getElementById('edit_place_address').value = place.address || '';
                 document.getElementById('edit_place_lat').value = place.latitude;
                 document.getElementById('edit_place_lng').value = place.longitude;
                 
-                const catSelect = document.getElementById('edit_place_category');
-                catSelect.innerHTML = categoriesData.map(c => `<option value="${c.id}" ${c.id == place.category_id ? 'selected' : ''}>${c.name}</option>`).join('');
+                // Re-load and sort categories with the current selection first
+                await loadCategories(place.category_id);
                 
                 const preview = document.getElementById('current-image-preview');
+                const editImageName = document.getElementById('edit-image-name');
+                
                 if (place.image) {
                     preview.classList.remove('hidden');
                     preview.querySelector('img').src = `/storage/${place.image}`;
+                    editImageName.textContent = place.image.split('/').pop();
                 } else {
                     preview.classList.add('hidden');
+                    editImageName.textContent = '{{ __("Arrossega o selecciona una imatge") }}';
                 }
 
                 const modal = document.getElementById('edit-modal');
+                document.getElementById('edit_remove_image').value = '0';
                 modal.classList.remove('hidden');
                 setTimeout(() => {
                     modal.classList.remove('opacity-0');
@@ -568,6 +746,9 @@
         document.getElementById('edit-place-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const id = document.getElementById('edit_place_id').value;
+            const checkedCats = document.querySelectorAll('.edit-cat-checkbox:checked');
+            const catId = checkedCats.length > 0 ? checkedCats[0].value : null;
+
             const formData = new FormData();
             formData.append('_method', 'PUT'); // For Laravel with file uploads
             formData.append('name', document.getElementById('edit_place_name').value);
@@ -575,7 +756,8 @@
             formData.append('address', document.getElementById('edit_place_address').value);
             formData.append('latitude', document.getElementById('edit_place_lat').value);
             formData.append('longitude', document.getElementById('edit_place_lng').value);
-            formData.append('category_id', document.getElementById('edit_place_category').value);
+            formData.append('category_id', catId);
+            formData.append('remove_image', document.getElementById('edit_remove_image').value);
             
             const imageFile = document.getElementById('edit_place_image').files[0];
             if (imageFile) {
@@ -605,21 +787,21 @@
             }
 
             let html = `
-                <button onclick="changePage(${currentPage - 1})" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:bg-primary hover:text-white transition-all ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === 1 ? 'disabled' : ''}>
+                <button onclick="changePage(${currentPage - 1})" class="w-10 h-10 flex items-center justify-center rounded-[10px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:bg-primary hover:text-white transition-all ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === 1 ? 'disabled' : ''}>
                     <span class="material-symbols-outlined">chevron_left</span>
                 </button>
                 <div class="flex items-center gap-2">`;
 
             for (let i = 1; i <= totalPages; i++) {
                 if (i === currentPage) {
-                    html += `<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-white font-black text-xs shadow-lg shadow-primary/20">${i}</button>`;
+                    html += `<button class="w-10 h-10 flex items-center justify-center rounded-[10px] bg-primary text-white font-black text-xs shadow-lg shadow-primary/20">${i}</button>`;
                 } else {
-                    html += `<button onclick="changePage(${i})" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 font-black text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">${i}</button>`;
+                    html += `<button onclick="changePage(${i})" class="w-10 h-10 flex items-center justify-center rounded-[10px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 font-black text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">${i}</button>`;
                 }
             }
 
             html += `</div>
-                <button onclick="changePage(${currentPage + 1})" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:bg-primary hover:text-white transition-all ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === totalPages ? 'disabled' : ''}>
+                <button onclick="changePage(${currentPage + 1})" class="w-10 h-10 flex items-center justify-center rounded-[10px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:bg-primary hover:text-white transition-all ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === totalPages ? 'disabled' : ''}>
                     <span class="material-symbols-outlined">chevron_right</span>
                 </button>`;
 
@@ -631,11 +813,125 @@
             renderPlaces();
         }
 
-        // Image name feedback
-        document.getElementById('place_image').addEventListener('change', function(e) {
-            const fileName = e.target.files[0] ? e.target.files[0].name : 'Selecciona una imatge...';
-            document.getElementById('image-name').textContent = fileName;
+        // Drag & Drop Handling
+        const dropZone = document.getElementById('drop-zone');
+        const placeImageInput = document.getElementById('place_image');
+        const imagePreview = document.getElementById('image-preview');
+        const previewImg = imagePreview.querySelector('img');
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        previewImg.src = e.target.result;
+                        imagePreview.classList.remove('hidden');
+                        document.getElementById('image-name').textContent = file.name;
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    // Actualizar el input file oculto para que el formulario lo envíe
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    placeImageInput.files = dataTransfer.files;
+                }
+            }
+        }
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('border-primary', 'bg-[#e8d5ff]', 'dark:bg-slate-800');
         });
+
+        ['dragleave', 'dragend'].forEach(type => {
+            dropZone.addEventListener(type, () => {
+                dropZone.classList.remove('border-primary', 'bg-[#e8d5ff]', 'dark:bg-slate-800');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('border-primary', 'bg-[#e8d5ff]', 'dark:bg-slate-800');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        dropZone.addEventListener('click', () => placeImageInput.click());
+
+        document.getElementById('btn-delete-image').addEventListener('click', (e) => {
+            e.stopPropagation();
+            placeImageInput.value = '';
+            imagePreview.classList.add('hidden');
+            previewImg.src = '';
+            document.getElementById('image-name').textContent = '{{ __("Arrossega o selecciona una imatge") }}';
+        });
+
+        document.getElementById('btn-change-image').addEventListener('click', (e) => {
+            e.stopPropagation();
+            placeImageInput.click();
+        });
+
+        // Edit Modal Drag & Drop
+        const editDropZone = document.getElementById('edit-drop-zone');
+        const editPlaceImageInput = document.getElementById('edit_place_image');
+        const editImagePreview = document.getElementById('current-image-preview');
+        const editPreviewImg = editImagePreview.querySelector('img');
+
+        function handleEditFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        editPreviewImg.src = e.target.result;
+                        editImagePreview.classList.remove('hidden');
+                        document.getElementById('edit-image-name').textContent = file.name;
+                        document.getElementById('edit_remove_image').value = '0';
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    editPlaceImageInput.files = dataTransfer.files;
+                }
+            }
+        }
+
+        editDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            editDropZone.classList.add('border-primary', 'bg-[#e8d5ff]', 'dark:bg-slate-800');
+        });
+
+        ['dragleave', 'dragend'].forEach(type => {
+            editDropZone.addEventListener(type, () => {
+                editDropZone.classList.remove('border-primary', 'bg-[#e8d5ff]', 'dark:bg-slate-800');
+            });
+        });
+
+        editDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            editDropZone.classList.remove('border-primary', 'bg-[#e8d5ff]', 'dark:bg-slate-800');
+            handleEditFiles(e.dataTransfer.files);
+        });
+
+        editDropZone.addEventListener('click', () => editPlaceImageInput.click());
+
+        document.getElementById('btn-edit-delete-image').addEventListener('click', (e) => {
+            e.stopPropagation();
+            editPlaceImageInput.value = '';
+            editImagePreview.classList.add('hidden');
+            editPreviewImg.src = '';
+            document.getElementById('edit-image-name').textContent = '{{ __("Arrossega o selecciona una imatge") }}';
+            document.getElementById('edit_remove_image').value = '1';
+        });
+
+        document.getElementById('btn-edit-change-image').addEventListener('click', (e) => {
+            e.stopPropagation();
+            editPlaceImageInput.click();
+        });
+
+        placeImageInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        editPlaceImageInput.addEventListener('change', (e) => handleEditFiles(e.target.files));
 
         document.getElementById('edit_place_image').addEventListener('change', function(e) {
             const fileName = e.target.files[0] ? e.target.files[0].name : 'Selecciona una imatge...';
@@ -678,8 +974,13 @@
                 document.getElementById('place_lat').value = '';
                 document.getElementById('place_lng').value = '';
                 document.getElementById('place_image').value = '';
-                document.getElementById('image-name').textContent = 'Selecciona una imatge...';
-                checkedCats.forEach(c => c.checked = false);
+                document.getElementById('image-name').textContent = '{{ __("Arrossega o selecciona una imatge") }}';
+                imagePreview.classList.add('hidden');
+                previewImg.src = '';
+                
+                // Reset categories: only the first one (fallback) stays checked
+                const checkboxes = document.querySelectorAll('.cat-checkbox');
+                checkboxes.forEach((c, index) => c.checked = (index === 0));
                 
                 if(tempMarker) map.removeLayer(tempMarker);
                 loadPlaces();
