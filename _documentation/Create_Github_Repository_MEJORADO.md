@@ -192,8 +192,45 @@ Ver repositorio remoto:
 git remote -v
 ```
 
-Ver ramas:
+Ver ramas locales y remotas (muestra tanto las ramas del lado del PC como las que Git conoce que existen en el servidor (GitHub):
 
 ``` bash
 git branch -a
+```
+
+Mostrar detalles de ramas (úkltimo commit y relación con remoto)
+
+``` bash
+git branch -vv
+```
+
+Pueden aparecer ramas que una vez se usasen pero ya no se usan. Por ejemplo, si se ve remotes/origin/nombre-de-la-rama, pero esa rama no está en la lista de ramas locales (git branch), significa que esa rama existe en GitHub pero no en local. Para eliminarla localmente:  
+
+``` bash
+git fetch origin --prune
+```
+
+**fetch** pregunta a Github qué ramas existen en el servidor y actualiza la lista de ramas locales y **prune** elimina las ramas locales que no existen en el servidor.
+
+La rama **remotes/origin/nombre-de-la-rama** es una rama remota, es decir, una rama que existe en GitHub pero no en local.
+La rama **remotes/origin/HEAD** indica cuál es la rama por defecto en el repositorio remoto. Por lo tanto, si en el repositorio remoto la rama por defecto es **main**, entonces **remotes/origin/HEAD** apuntará a **remotes/origin/main**.
+
+
+Para eliminar una rama local que ya no se usa. git detecta si esa rama está "desfasada" (es decir, si ya no se usa) o si hay cambios en esa rama que no están en ningún otro lado, y te impide borrarla si hay cambios que se perderían, mostrando un error:
+
+``` bash
+git branch -d nombre-de-la-rama
+```
+
+Borrado forzado (si estás seguro de que quieres borrar la rama, aunque tenga cambios que no están en ningún otro lado):
+
+``` bash
+git branch -D nombre-de-la-rama
+```
+
+No se puede borrar la rama en la que estás actualmente. Primero te has de mover a otra rama, por ejemplo a la rama main:
+
+``` bash
+git checkout main  # o git switch main
+git branch -d nombre-de-la-rama
 ```
