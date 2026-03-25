@@ -41,6 +41,14 @@
     .animate-bounce-slow {
         animation: bounce-slow 2s infinite ease-in-out;
     }
+    @keyframes pulse-marker {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .temp-marker-pulse {
+        animation: pulse-marker 2s infinite ease-in-out;
+    }
 </style>
 @endpush
 
@@ -508,26 +516,35 @@
 
         function createCustomIcon(category) {
             const color = category && category.color ? category.color : '#5D3FD3';
+            const iconName = category && category.icon ? category.icon : 'location_on';
+            
+            const isCustom = iconName.startsWith('category-icons/');
+            const iconHtml = isCustom 
+                ? `<img src="/storage/${iconName}" style="width: 18px; height: 18px; filter: brightness(0) invert(1);" />`
+                : `<span class="material-symbols-outlined" style="color: white; font-size: 18px; font-variation-settings: 'FILL' 1;">${iconName}</span>`;
+
             return L.divIcon({
                 html: `
-                    <div style="position: relative; width: 34px; height: 44px; display: flex; align-items: center; justify-content: center;">
-                        <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
-                            <!-- Ground shadow (Ellipse) -->
-                            <ellipse cx="20" cy="42" rx="12" ry="4" fill="rgba(0,0,0,0.2)" filter="blur(3px)"/>
-                            <!-- Pin shadow (Offset path) -->
-                            <path d="M20 32C20 32 32 18.5 32 12C32 5.373 26.627 0 20 0C13.373 0 8 5.373 8 12C8 18.5 20 32 20 32Z" 
-                                fill="rgba(0,0,0,0.1)" transform="translate(2, 2)" filter="blur(1px)"/>
-                            <!-- Main Pin -->
-                            <path d="M20 32C20 32 32 18.5 32 12C32 5.373 26.627 0 20 0C13.373 0 8 5.373 8 12C8 18.5 20 32 20 32Z" 
-                                fill="${color}" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));"/>
-                            <!-- Inner Circle -->
-                            <circle cx="20" cy="12" r="5" fill="white"/>
-                        </svg>
+                    <div style="background-color: ${color}; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 3px 6px rgba(0,0,0,0.3); transition: all 0.2s;">
+                        ${iconHtml}
                     </div>`,
                 className: "custom-div-icon",
-                iconSize: [40, 50],
-                iconAnchor: [20, 50],
-                popupAnchor: [0, -45]
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
+            });
+        }
+
+        function createTempIcon() {
+            return L.divIcon({
+                html: `
+                    <div class="temp-marker-pulse" style="background-color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px dashed #5D3FD3; box-shadow: 0 3px 6px rgba(0,0,0,0.2);">
+                        <span class="material-symbols-outlined" style="color: #5D3FD3; font-size: 18px;">add_location</span>
+                    </div>`,
+                className: "temp-div-icon",
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                popupAnchor: [0, -16]
             });
         }
 
@@ -994,7 +1011,7 @@
             document.getElementById('place_lng').value = e.latlng.lng.toFixed(6);
             
             if(tempMarker) map.removeLayer(tempMarker);
-            tempMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map).bindPopup("Nova Ubicació").openPopup();
+            tempMarker = L.marker([e.latlng.lat, e.latlng.lng], { icon: createTempIcon() }).addTo(map).bindPopup("Nova Ubicació").openPopup();
         });
 
         document.getElementById('btn-search-coords').addEventListener('click', async function() {
@@ -1011,7 +1028,7 @@
                 document.getElementById('place_lat').value = lat;
                 document.getElementById('place_lng').value = lon;
                 if(tempMarker) map.removeLayer(tempMarker);
-                tempMarker = L.marker([lat, lon]).addTo(map).bindPopup("Ubicació trobada!").openPopup();
+                tempMarker = L.marker([lat, lon], { icon: createTempIcon() }).addTo(map).bindPopup("Ubicació trobada!").openPopup();
             }
         });
 
