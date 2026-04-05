@@ -16,7 +16,7 @@
     }
     .custom-popup .leaflet-popup-content {
         margin: 0;
-        width: 240px !important;
+        width: auto !important;
     }
     .custom-popup .leaflet-popup-tip {
         display: none;
@@ -73,6 +73,15 @@
                 <div class="xl:col-span-4 flex flex-col">
                     <div class="flex-1 rounded-[10px] overflow-hidden relative border border-slate-100 dark:border-slate-800 shadow-inner min-h-[500px]">
                         <div id="main-map" class="absolute inset-0 z-0"></div>
+                        <!-- Map Controls -->
+                        <div class="absolute bottom-6 right-6 z-[400] flex flex-col gap-2">
+                            <button id="btn-locate" type="button" class="w-10 h-10 bg-white dark:bg-slate-800 rounded-[10px] shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors border border-slate-100 dark:border-slate-700" title="{{ __('Centrar a la meva ubicació') }}">
+                                <span class="material-symbols-outlined text-[20px]">my_location</span>
+                            </button>
+                            <button id="btn-reset-map" type="button" class="w-10 h-10 bg-white dark:bg-slate-800 rounded-[10px] shadow-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors border border-slate-100 dark:border-slate-700" title="{{ __('Restablir zoom i vista') }}">
+                                <span class="material-symbols-outlined text-[20px]">zoom_in_map</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <!-- Add Place Form (2/3) -->
@@ -367,14 +376,46 @@
         setupCollapsible('toggle-places-list', 'places-list-content', 'places-list-icon');
 
         const HOST = '{{ url('/admin') }}'; 
+        const initialCenter = [41.3663, 2.1167];
+        const initialZoom   = 14;
+
         let map;
         try {
-            map = L.map('main-map').setView([41.3663, 2.1167], 14); 
+            map = L.map('main-map').setView(initialCenter, initialZoom); 
         } catch (e) {
             console.error("Leaflet initialization failed", e);
             document.getElementById('main-map').innerHTML = '<div class="flex items-center justify-center h-full text-red-500 font-bold">Error carregant el mapa</div>';
             return;
         }
+
+        // Map Controls Logic
+        document.getElementById('btn-reset-map').addEventListener('click', () => {
+            map.setView(initialCenter, initialZoom);
+        });
+
+        document.getElementById('btn-locate').addEventListener('click', () => {
+            map.locate({setView: true, maxZoom: 16});
+        });
+
+        map.on('locationfound', function(e) {
+            if (window.userMarker) {
+                window.userMarker.setLatLng(e.latlng);
+            } else {
+                window.userMarker = L.circleMarker(e.latlng, {
+                    radius: 8,
+                    fillColor: "#3b82f6",
+                    color: "#fff",
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+            }
+        });
+
+        map.on('locationerror', function(e) {
+            console.error(e);
+            alert("No s'ha pogut obtenir la ubicació.");
+        });
         
         const lightTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
@@ -577,10 +618,9 @@
                 }).addTo(map);
                 m.bindPopup(`
                     <div class="p-0 min-w-[240px] overflow-hidden rounded-[10px] bg-white dark:bg-slate-900 shadow-xl border border-slate-100 dark:border-slate-800">
-                        ${place.image ? `
                         <div class="w-full h-32 overflow-hidden border-b border-slate-100 dark:border-slate-800">
-                            <img src="/storage/${place.image}" class="w-full h-full object-cover">
-                        </div>` : ''}
+                            <img src="${place.image ? '/storage/' + place.image : '/images/placeholder-poi.png'}" class="w-full h-full object-cover">
+                        </div>
                         <div class="p-4">
                             <div class="flex justify-between items-start mb-2">
                                 <h5 class="font-black text-slate-900 dark:text-slate-100 text-lg leading-tight pr-4">${place.name}</h5>

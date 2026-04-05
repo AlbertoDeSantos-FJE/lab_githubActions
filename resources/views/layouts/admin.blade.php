@@ -62,7 +62,7 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 md:ml-64 min-h-screen flex flex-col">
+        <main class="flex-1 md:ml-64 min-h-screen flex flex-col min-w-0">
             <!-- Header -->
             <header class="sticky top-0 z-40 bg-surface/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-violet-100 dark:border-slate-800 px-8 h-20 flex items-center justify-between shrink-0">
                 <h1 class="text-xl font-black text-primary/60 dark:text-primary/40 uppercase tracking-[0.1em] ml-2">@yield('header_title', 'Administració')</h1>
@@ -71,7 +71,7 @@
                 <div class="flex-1 max-w-xl mx-8 hidden lg:block">
                     <div class="relative group">
                         <span class="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors">search</span>
-                        <input type="text" id="search-input" placeholder="{{ __('Cerca llocs') }}" class="w-full bg-surface-container-low dark:bg-slate-900 border-none rounded-[10px] py-3.5 pl-14 pr-6 focus:ring-4 focus:ring-primary/10 transition-all text-sm font-medium">
+                        <input type="text" id="search-input" placeholder="@yield('search_placeholder', __('Cerca llocs'))" class="w-full bg-surface-container-low dark:bg-slate-900 border-none rounded-[10px] py-3.5 pl-14 pr-6 focus:ring-4 focus:ring-primary/10 transition-all text-sm font-medium">
                     </div>
                 </div>
                 @else

@@ -9,7 +9,7 @@ class GroupProgress extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['group_id', 'gymkhana_id', 'current_point_order', 'completed_at'];
+    protected $fillable = ['group_id', 'gymkhana_id', 'current_point_order', 'completed_at', 'rating'];
 
     protected $casts = [
         'completed_at' => 'datetime',

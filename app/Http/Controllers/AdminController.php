@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Place;
 use App\Models\Gymkhana;
+use App\Models\GymkhanaPoint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
@@ -188,6 +190,211 @@ class AdminController extends Controller
 
         $category->delete();
 
+        return response()->json(['success' => true]);
+    }
+
+
+    // ── Gymkhana Management ───────────────────────────────────────────────
+
+    public function manageGymkhanas()
+    {
+        $gymkhanas = Gymkhana::withCount('points')
+                             ->with('groupProgresses')
+                             ->orderBy('created_at', 'desc')
+                             ->get();
+                             
+        // Global Stats calculation
+        $globals = [
+            'totalRutes' => $gymkhanas->count(),
+            'usersToday' => 0,
+            'avgGlobalTime' => '-',
+            'avgRating' => '-',
+        ];
+
+        $completedToday = \App\Models\GroupProgress::whereDate('completed_at', \Carbon\Carbon::today())->with('group.users')->get();
+        foreach ($completedToday as $cp) {
+            if ($cp->group && $cp->group->users) {
+                $globals['usersToday'] += $cp->group->users->count();
+            }
+        }
+
+        $allCompleted = \App\Models\GroupProgress::whereNotNull('completed_at')->get();
+        if ($allCompleted->count() > 0) {
+            $totalMins = 0;
+            foreach ($allCompleted as $ac) {
+                $totalMins += $ac->created_at->diffInMinutes($ac->completed_at);
+            }
+            $avgMins = round($totalMins / $allCompleted->count());
+            if ($avgMins >= 60) {
+                $h = floor($avgMins / 60);
+                $m = $avgMins % 60;
+                $globals['avgGlobalTime'] = "{$h}h {$m}m";
+            } else {
+                $globals['avgGlobalTime'] = "{$avgMins}m";
+            }
+        }
+
+        $avgRatingDB = \App\Models\GroupProgress::whereNotNull('rating')->avg('rating');
+        if ($avgRatingDB) {
+            $globals['avgRating'] = number_format($avgRatingDB, 1);
+        }
+
+        foreach ($gymkhanas as $gym) {
+            $completed = collect($gym->groupProgresses)->filter(function($p) {
+                return !is_null($p->completed_at);
+            });
+
+            if ($completed->count() > 0) {
+                $totalMinutes = 0;
+                foreach ($completed as $p) {
+                    $totalMinutes += $p->created_at->diffInMinutes($p->completed_at);
+                }
+                $avg = round($totalMinutes / $completed->count());
+                
+                if ($avg >= 60) {
+                    $h = floor($avg / 60);
+                    $m = $avg % 60;
+                    $gym->real_duration = "{$h}h {$m}m";
+                } else {
+                    $gym->real_duration = "{$avg} min";
+                }
+            } else {
+                $gym->real_duration = null;
+            }
+        }
+                             
+        return view('admin.gymkhanas', compact('gymkhanas', 'globals'));
+    }
+
+    public function createGymkhana()
+    {
+        $places = Place::with('category')->whereHas('category', function($q) {
+            $q->where('active', true);
+        })->get();
+
+        return view('admin.gymkhana-create', compact('places'));
+    }
+
+    public function storeGymkhana(Request $request)
+    {
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'min_members' => 'required|integer|min:2|max:50',
+            'image'       => 'nullable|image|max:5120',
+            'points'      => 'required|array|min:1',
+            'points.*.place_id'        => 'required|exists:places,id',
+            'points.*.question'        => 'required|string',
+            'points.*.answer_options'  => 'required|array|size:4',
+            'points.*.answer_options.*'=> 'required|string',
+            'points.*.correct_index'   => 'required|integer|min:0|max:3',
+            'points.*.next_clue'       => 'nullable|string',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('gymkhanas', 'public');
+        }
+
+        $gymkhana = Gymkhana::create([
+            'name'        => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'min_members' => $validated['min_members'],
+            'image'       => $imagePath,
+        ]);
+
+        $lastIndex = count($validated['points']) - 1;
+        foreach ($validated['points'] as $index => $point) {
+            $options       = $point['answer_options'];
+            $correctIndex  = (int) $point['correct_index'];
+            $correctAnswer = $options[$correctIndex] ?? $options[0];
+
+            GymkhanaPoint::create([
+                'gymkhana_id'    => $gymkhana->id,
+                'place_id'       => $point['place_id'],
+                'order'          => $index + 1,
+                'question'       => $point['question'],
+                'expected_answer'=> $correctAnswer,
+                'answer_options' => $options,
+                'next_clue'      => ($index < $lastIndex) ? ($point['next_clue'] ?? null) : null,
+            ]);
+        }
+
+        return response()->json(['success' => true, 'gymkhana' => $gymkhana]);
+    }
+
+    public function editGymkhana($id)
+    {
+        $gymkhana = Gymkhana::with(['points.place.category'])->findOrFail($id);
+        $places = Place::with('category')->whereHas('category', function($q) {
+            $q->where('active', true);
+        })->get();
+
+        return view('admin.gymkhana-create', compact('places', 'gymkhana'));
+    }
+
+    public function updateGymkhana(Request $request, $id)
+    {
+        $gymkhana = Gymkhana::findOrFail($id);
+
+        $validated = $request->validate([
+            'name'        => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'min_members' => 'required|integer|min:2|max:50',
+            'image'       => 'nullable|image|max:5120',
+            'points'      => 'required|array|min:1',
+            'points.*.place_id'        => 'required|exists:places,id',
+            'points.*.question'        => 'required|string',
+            'points.*.answer_options'  => 'required|array|size:4',
+            'points.*.answer_options.*'=> 'required|string',
+            'points.*.correct_index'   => 'required|integer|min:0|max:3',
+            'points.*.next_clue'       => 'nullable|string',
+        ]);
+
+        if ($request->hasFile('image')) {
+            if ($gymkhana->image) {
+                Storage::disk('public')->delete($gymkhana->image);
+            }
+            $gymkhana->image = $request->file('image')->store('gymkhanas', 'public');
+        }
+
+        $gymkhana->update([
+            'name'        => $validated['name'],
+            'description' => $validated['description'] ?? null,
+            'min_members' => $validated['min_members'],
+        ]);
+
+        // Recreate points
+        $gymkhana->points()->delete();
+        
+        $lastIndex = count($validated['points']) - 1;
+        foreach ($validated['points'] as $index => $point) {
+            $options       = $point['answer_options'];
+            $correctIndex  = (int) $point['correct_index'];
+            $correctAnswer = $options[$correctIndex] ?? $options[0];
+
+            GymkhanaPoint::create([
+                'gymkhana_id'    => $gymkhana->id,
+                'place_id'       => $point['place_id'],
+                'order'          => $index + 1,
+                'question'       => $point['question'],
+                'expected_answer'=> $correctAnswer,
+                'answer_options' => $options,
+                'next_clue'      => ($index < $lastIndex) ? ($point['next_clue'] ?? null) : null,
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyGymkhana($id)
+    {
+        $gymkhana = Gymkhana::findOrFail($id);
+        if ($gymkhana->image) {
+            Storage::disk('public')->delete($gymkhana->image);
+        }
+        $gymkhana->delete();
+        
         return response()->json(['success' => true]);
     }
 
