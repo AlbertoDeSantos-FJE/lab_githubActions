@@ -9,7 +9,11 @@ class Gymkhana extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'min_members'];
+    protected $fillable = ['name', 'description', 'min_members', 'image', 'active'];
+
+    protected $casts = [
+        'active' => 'boolean',
+    ];
 
     public function points()
     {

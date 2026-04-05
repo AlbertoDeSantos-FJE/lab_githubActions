@@ -30,13 +30,24 @@
     .dark .custom-scrollbar::-webkit-scrollbar-thumb {
         background: #8b5cf6;
     }
+    /* Collapsible styles */
+    #category-form-content {
+        transition: all 0.4s ease-in-out;
+    }
+    @media (min-width: 1024px) {
+        #category-form-content {
+            max-height: none !important;
+            opacity: 1 !important;
+            margin-top: 0 !important;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="grid grid-cols-12 gap-10 items-start">
-    <!-- Left Side: Categories List -->
-    <div class="col-span-12 lg:col-span-8 space-y-4">
+<div class="flex flex-col lg:grid lg:grid-cols-12 gap-10 items-start">
+    <!-- Categories List -->
+    <div class="order-2 lg:order-none col-span-12 lg:col-span-8 space-y-4 w-full">
         <div class="flex flex-col md:flex-row justify-between items-end md:items-center gap-4">
             <div>
                 <h3 class="text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Llistat de Categories') }}</h3>
@@ -54,14 +65,24 @@
         </div>
     </div>
 
-    <!-- Right Side: Persistent Form -->
-    <div class="col-span-12 lg:col-span-4 sticky top-32">
-        <div class="bg-white dark:bg-slate-900 px-10 py-5 rounded-[10px] border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div class="mb-5">
-                <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Nova Categoria') }}</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{{ __('Defineix els paràmetres de la nova categoria.') }}</p>
+    <!-- Persistent Form -->
+    <div class="order-1 lg:order-none col-span-12 lg:col-span-4 lg:sticky lg:top-32 w-full">
+        <div class="bg-white dark:bg-slate-900 rounded-[10px] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+            <!-- Mobile Toggle Header -->
+            <div id="toggle-nova-categoria" class="flex lg:hidden items-center justify-between cursor-pointer group px-8 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                <div>
+                    <h3 class="font-black text-xl text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Nova Categoria') }}</h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ __('Defineix els paràmetres de la nova categoria.') }}</p>
+                </div>
+                <span class="material-symbols-outlined text-3xl text-primary transition-transform duration-300 transform" id="nova-categoria-icon">expand_more</span>
             </div>
-            <form id="category-form" class="space-y-4">
+
+            <div id="category-form-content" class="px-10 py-5 lg:pt-8 transition-all duration-300">
+                <div class="mb-5 hidden lg:block">
+                    <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Nova Categoria') }}</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">{{ __('Defineix els paràmetres de la nova categoria.') }}</p>
+                </div>
+                <form id="category-form" class="space-y-4">
                 @csrf
                 <!-- Category Name -->
                 <div class="space-y-3">
@@ -328,6 +349,61 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // --- Collapsible Logic ---
+        const isMobile = () => window.innerWidth < 1024;
+        let isCollapsed = isMobile();
+
+        function setupCollapsible() {
+            const toggle = document.getElementById('toggle-nova-categoria');
+            const content = document.getElementById('category-form-content');
+            const icon = document.getElementById('nova-categoria-icon');
+
+            if (!toggle || !content) return;
+
+            // Initial state based on screen size
+            if (isMobile()) {
+                content.style.maxHeight = '0px';
+                content.style.opacity = '0';
+                content.style.marginTop = '0px';
+                icon.style.transform = 'rotate(-90deg)';
+                isCollapsed = true;
+            } else {
+                content.style.maxHeight = 'none';
+                content.style.opacity = '1';
+                content.style.marginTop = '0px';
+                icon.style.transform = 'rotate(0deg)';
+                isCollapsed = false;
+            }
+
+            toggle.addEventListener('click', () => {
+                if (!isMobile()) return;
+
+                isCollapsed = !isCollapsed;
+                if (!isCollapsed) {
+                    content.style.maxHeight = content.scrollHeight + '60px'; // Buffer
+                    content.style.opacity = '1';
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    content.style.maxHeight = '0px';
+                    content.style.opacity = '0';
+                    icon.style.transform = 'rotate(-90deg)';
+                }
+            });
+        }
+
+        setupCollapsible();
+        window.addEventListener('resize', () => {
+            const content = document.getElementById('category-form-content');
+            const icon = document.getElementById('nova-categoria-icon');
+            if (!isMobile()) {
+                content.style.maxHeight = 'none';
+                content.style.opacity = '1';
+                icon.style.transform = 'rotate(0deg)';
+            } else if (!isCollapsed) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }
+        });
+
         const csrf = document.querySelector('meta[name="csrf-token"]').content;
         const categoriesContainer = document.getElementById('categories-container');
         let searchTimeout;

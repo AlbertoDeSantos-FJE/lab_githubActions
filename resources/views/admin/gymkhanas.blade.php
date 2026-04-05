@@ -53,44 +53,51 @@
             <table class="w-full text-left border-collapse" id="gymkhanas-table">
                 <thead>
                     <tr class="bg-slate-50 dark:bg-slate-800/50">
-                        <th class="px-10 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Scavenger Hunt Name') }}</th>
-                        <th class="px-10 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Number of Stages') }}</th>
-                        <th class="px-10 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Average Duration') }}</th>
-                        <th class="px-10 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">{{ __('Actions') }}</th>
+                        <th class="px-4 md:px-10 py-4 md:py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Scavenger Hunt Name') }}</th>
+                        <th class="hidden md:table-cell px-10 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Number of Stages') }}</th>
+                        <th class="hidden md:table-cell px-10 py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Average Duration') }}</th>
+                        <th class="px-4 md:px-10 py-4 md:py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{{ __('Estat') }}</th>
+                        <th class="px-4 md:px-10 py-4 md:py-6 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] text-right">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
                     @foreach($gymkhanas as $gym)
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                            <td class="px-10 py-8">
-                                <div class="flex items-center gap-5">
-                                    <div class="w-16 h-16 rounded-[10px] bg-primary/5 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-800 shrink-0">
+                            <td class="px-3 md:px-10 py-4 md:py-8">
+                                <div class="flex items-center gap-3 md:gap-5">
+                                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-[10px] bg-primary/5 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-800 shrink-0">
                                         <img alt="{{ $gym->name }}" class="w-full h-full object-cover" src="{{ $gym->image ? asset('storage/' . $gym->image) : asset('images/placeholder-poi.png') }}"/>
                                     </div>
                                     <div class="truncate">
-                                        <p class="font-black text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors truncate">{{ $gym->name }}</p>
-                                        <p class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate max-w-[200px]">{{ $gym->description ?: __('Sense descripció') }}</p>
+                                        <p class="font-black text-xs md:text-sm text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors truncate">{{ $gym->name }}</p>
+                                        <p class="text-[9px] md:text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest truncate max-w-[120px] md:max-w-[200px]">{{ $gym->description ?: __('Sense descripció') }}</p>
                                     </div>
                                 </div>
                             </td>
-                            <td class="px-10 py-8">
+                            <td class="hidden md:table-cell px-10 py-8">
                                 <span class="px-4 py-1.5 bg-primary/10 dark:bg-slate-800 rounded-[10px] text-[10px] font-black text-primary dark:text-primary-fixed uppercase tracking-widest border border-primary/10">
                                     {{ $gym->points_count }} {{ __('Etapes') }}
                                 </span>
                             </td>
-                            <td class="px-10 py-8">
+                            <td class="hidden md:table-cell px-10 py-8">
                                 <div class="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                                     <span class="material-symbols-outlined text-sm">schedule</span>
                                     <span class="text-xs font-bold">{{ $gym->real_duration ? $gym->real_duration : __('Mai completada') }}</span>
                                 </div>
                             </td>
-                            <td class="px-10 py-8 text-right">
-                                <div class="flex justify-end gap-3">
-                                    <a href="{{ route('admin.gymkhanas.edit', $gym->id) }}" class="w-10 h-10 rounded-[10px] flex items-center justify-center text-primary bg-primary/5 hover:bg-primary/10 transition-colors">
-                                        <span class="material-symbols-outlined text-lg">edit</span>
+                            <td class="px-3 md:px-10 py-4 md:py-8">
+                                <label class="relative inline-flex items-center cursor-pointer group">
+                                    <input type="checkbox" class="sr-only peer" {{ $gym->active ? 'checked' : '' }} onchange="toggleGymkhanaStatus({{ $gym->id }}, this)">
+                                    <div class="w-9 h-5 md:w-11 md:h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 md:after:h-5 md:after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                                </label>
+                            </td>
+                            <td class="px-3 md:px-10 py-4 md:py-8 text-right">
+                                <div class="flex justify-end gap-1.5 md:gap-3">
+                                    <a href="{{ route('admin.gymkhanas.edit', $gym->id) }}" class="w-8 h-8 md:w-10 md:h-10 rounded-[10px] flex items-center justify-center text-primary bg-primary/5 hover:bg-primary/10 transition-colors">
+                                        <span class="material-symbols-outlined text-base md:text-lg">edit</span>
                                     </a>
-                                    <button onclick="deleteGymkhana({{ $gym->id }}, '{{ addslashes($gym->name) }}')" class="w-10 h-10 rounded-[10px] flex items-center justify-center text-red-500 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors">
-                                        <span class="material-symbols-outlined text-lg">delete</span>
+                                    <button onclick="deleteGymkhana({{ $gym->id }}, '{{ addslashes($gym->name) }}')" class="w-8 h-8 md:w-10 md:h-10 rounded-[10px] flex items-center justify-center text-red-500 bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors">
+                                        <span class="material-symbols-outlined text-base md:text-lg">delete</span>
                                     </button>
                                 </div>
                             </td>
@@ -114,29 +121,66 @@
         </div>
     </div>
 </div>
-<script>
-    document.getElementById('search-input')?.addEventListener('input', function(e) {
-        const term = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#gymkhanas-table tbody tr');
-        let visibleCount = 0;
-        
-        rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
-            if (text.includes(term)) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
-        });
-        
-        document.getElementById('gym-count-text').innerText = '{{ __("Mostrant") }} ' + visibleCount + ' {{ __("gimcanes") }}';
-    });
+{{-- ── Delete Confirmation Modal ────────────────────────────────────────── --}}
+<div id="delete-gymkhana-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[10px] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300">
+        <div class="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-[10px] flex items-center justify-center mb-6 mx-auto">
+            <span class="material-symbols-outlined text-4xl text-red-500">warning</span>
+        </div>
+        <div class="text-center mb-8">
+            <h3 class="text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Eliminar Gimcana') }}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-3 leading-relaxed">
+                {{ __('Estàs a punt d\'eliminar la gimcana') }} <strong id="delete-gymkhana-name" class="text-slate-900 dark:text-slate-100"></strong>.<br><br>
+                {{ __('Estàs segur que vols continuar?') }}
+            </p>
+        </div>
+        <div class="flex flex-col gap-3">
+            <button id="confirm-delete-gymkhana" class="w-full bg-red-500 text-white py-4 rounded-[10px] font-black shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs flex items-center justify-center gap-2">
+                {{ __('SÍ, ELIMINAR') }}
+            </button>
+            <button id="cancel-delete-gymkhana" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-4 rounded-[10px] font-black hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-xs border border-slate-100 dark:border-slate-700">
+                {{ __('CANCEL·LAR') }}
+            </button>
+        </div>
+    </div>
+</div>
 
-    function deleteGymkhana(id, name) {
-        if (!confirm('{{ __("N\'estàs segur que vols eliminar la gimcana") }} "' + name + '"? {{ __("Aquesta acció no es pot desfer.") }}')) return;
+<script>
+    let gymkhanaToDeleteId = null;
+    const deleteModal = document.getElementById('delete-gymkhana-modal');
+    const deleteModalInner = deleteModal.querySelector('div');
+    const deleteNameEl = document.getElementById('delete-gymkhana-name');
+
+    window.deleteGymkhana = function(id, name) {
+        gymkhanaToDeleteId = id;
+        deleteNameEl.textContent = name;
         
-        fetch(`/admin/gymkhanas/${id}`, {
+        deleteModal.classList.remove('hidden');
+        setTimeout(() => {
+            deleteModal.classList.remove('opacity-0');
+            deleteModalInner.classList.remove('scale-95');
+        }, 10);
+    };
+
+    function closeDeleteModal() {
+        gymkhanaToDeleteId = null;
+        deleteModal.classList.add('opacity-0');
+        deleteModalInner.classList.add('scale-95');
+        setTimeout(() => {
+            deleteModal.classList.add('hidden');
+        }, 300);
+    }
+
+    document.getElementById('cancel-delete-gymkhana').addEventListener('click', closeDeleteModal);
+
+    document.getElementById('confirm-delete-gymkhana').addEventListener('click', function() {
+        if (!gymkhanaToDeleteId) return;
+
+        const btn = this;
+        btn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">progress_activity</span> {{ __("ELIMINANT...") }}';
+        btn.disabled = true;
+
+        fetch(`/admin/gymkhanas/${gymkhanaToDeleteId}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -149,11 +193,42 @@
                 window.location.reload();
             } else {
                 alert('{{ __("Error a l\'eliminar la gimcana") }}');
+                btn.innerHTML = '{{ __("SÍ, ELIMINAR") }}';
+                btn.disabled = false;
+                closeDeleteModal();
             }
         })
         .catch(e => {
             console.error(e);
             alert('{{ __("Error de xarxa. Torna-ho a intentar.") }}');
+            btn.innerHTML = '{{ __("SÍ, ELIMINAR") }}';
+            btn.disabled = false;
+            closeDeleteModal();
+        });
+    });
+
+    window.toggleGymkhanaStatus = function(id, checkbox) {
+        checkbox.disabled = true;
+        fetch(`/admin/gymkhanas/${id}/toggle`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                checkbox.checked = !checkbox.checked;
+                alert('{{ __("Error al canviar l\'estat") }}');
+            }
+        })
+        .catch(e => {
+            checkbox.checked = !checkbox.checked;
+            alert('{{ __("Error de xarxa") }}');
+        })
+        .finally(() => {
+            checkbox.disabled = false;
         });
     }
 </script>

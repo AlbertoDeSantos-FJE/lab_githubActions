@@ -100,8 +100,11 @@
                         <div class="col-span-1 md:col-span-2 space-y-3">
                             <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">{{ __('Contrasenya') }}</label>
                             <div class="relative flex items-center">
-                                <input type="password" value="••••••••••••" readonly class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-6 py-4 dark:text-slate-400 font-mono tracking-widest"/>
-                                <button type="button" class="absolute right-5 text-[10px] font-black text-primary uppercase tracking-widest hover:underline">{{ __('Canviar') }}</button>
+                                <input id="password" name="password" type="password" placeholder="{{ __('Introdueix una nova contrasenya') }}" autocomplete="new-password" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-[10px] text-sm px-6 py-4 focus:ring-2 focus:ring-primary/20 transition-all dark:text-slate-100 font-medium"/>
+                                <button type="button" id="toggle-password" class="absolute right-5 text-slate-400 hover:text-primary transition-colors hidden h-full flex items-center">
+                                    <span class="material-symbols-outlined select-none">visibility</span>
+                                </button>
+                                <button type="button" id="change-password-btn" onclick="document.getElementById('password').focus()" class="absolute right-5 text-[10px] font-black text-primary uppercase tracking-widest hover:underline">{{ __('Canviar') }}</button>
                             </div>
                         </div>
                     </div>
@@ -200,5 +203,27 @@
             reader.readAsDataURL(input.files[0]);
         }
     }
+
+    // Password Visibility Toggle Logic
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('toggle-password');
+    const toggleIcon = toggleBtn.querySelector('span');
+    const changeBtn = document.getElementById('change-password-btn');
+
+    passwordInput.addEventListener('input', function() {
+        if (this.value.length > 0) {
+            toggleBtn.classList.remove('hidden');
+            changeBtn.classList.add('hidden');
+        } else {
+            toggleBtn.classList.add('hidden');
+            changeBtn.classList.remove('hidden');
+        }
+    });
+
+    toggleBtn.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        toggleIcon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+    });
 </script>
 @endpush

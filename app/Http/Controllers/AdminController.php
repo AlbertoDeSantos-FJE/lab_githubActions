@@ -398,6 +398,14 @@ class AdminController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function toggleGymkhanaStatus($id)
+    {
+        $gymkhana = Gymkhana::findOrFail($id);
+        $gymkhana->active = !$gymkhana->active;
+        $gymkhana->save();
+        return response()->json(['success' => true, 'active' => $gymkhana->active]);
+    }
+
     // ── User Management ───────────────────────────────────────────────────
 
     public function manageUsers(Request $request)

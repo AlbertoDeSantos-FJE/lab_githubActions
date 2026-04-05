@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/gymkhanas/{id}/edit', [AdminController::class, 'editGymkhana'])->name('admin.gymkhanas.edit');
         Route::put('/gymkhanas/{id}', [AdminController::class, 'updateGymkhana'])->name('admin.gymkhanas.update');
         Route::delete('/gymkhanas/{id}', [AdminController::class, 'destroyGymkhana'])->name('admin.gymkhanas.destroy');
+        Route::post('/gymkhanas/{id}/toggle', [AdminController::class, 'toggleGymkhanaStatus']);
         Route::get('/manage-users', [AdminController::class, 'manageUsers'])->name('admin.users');
         Route::post('/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
         Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');

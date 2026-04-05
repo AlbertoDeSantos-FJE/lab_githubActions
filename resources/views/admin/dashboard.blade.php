@@ -68,10 +68,10 @@
 
         <!-- Togglable Content -->
         <div id="add-place-content" class="px-8 pb-4 transition-all duration-300 overflow-hidden">
-            <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch shrink-0 min-h-[500px]">
+            <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch shrink-0 min-h-[400px] md:min-h-[500px]">
                 <!-- Central Map Section (1/3) -->
                 <div class="xl:col-span-4 flex flex-col">
-                    <div class="flex-1 rounded-[10px] overflow-hidden relative border border-slate-100 dark:border-slate-800 shadow-inner min-h-[500px]">
+                    <div class="flex-1 rounded-[10px] overflow-hidden relative border border-slate-100 dark:border-slate-800 shadow-inner min-h-[400px] md:min-h-[500px]">
                         <div id="main-map" class="absolute inset-0 z-0"></div>
                         <!-- Map Controls -->
                         <div class="absolute bottom-6 right-6 z-[400] flex flex-col gap-2">
@@ -205,10 +205,10 @@
 
             <div class="flex flex-col gap-3">
                 <!-- Header Row -->
-                <div class="grid grid-cols-12 gap-4 px-8 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-                    <div class="col-span-4">{{ __('Nom i Localització') }}</div>
+                <div class="grid grid-cols-12 gap-4 px-4 md:px-8 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    <div class="col-span-6 md:col-span-4">{{ __('Nom i Localització') }}</div>
                     <div class="col-span-4">{{ __('Adreça') }}</div>
-                    <div class="col-span-2">{{ __('Categoria') }}</div>
+                    <div class="hidden md:block col-span-2">{{ __('Categoria') }}</div>
                     <div class="col-span-2 text-right">{{ __('Accions') }}</div>
                 </div>
 
@@ -650,29 +650,29 @@
                 const iconName = place.category && place.category.icon ? place.category.icon : 'location_on';
                 
                 listContainer.innerHTML += `
-                <div class="place-row grid grid-cols-12 gap-4 items-center bg-white dark:bg-slate-900 px-8 py-4 rounded-[10px] shadow-sm border border-slate-100 dark:border-slate-800 hover:border-primary/30 hover:shadow-md transition-all group cursor-pointer" data-place-id="${place.id}">
-                    <div class="col-span-4 flex items-center gap-4">
+                <div class="place-row grid grid-cols-12 gap-4 items-center bg-white dark:bg-slate-900 px-4 md:px-8 py-4 rounded-[10px] shadow-sm border border-slate-100 dark:border-slate-800 hover:border-primary/30 hover:shadow-md transition-all group cursor-pointer" data-place-id="${place.id}">
+                    <div class="col-span-6 md:col-span-4 flex items-center gap-4">
                         <div class="w-10 h-10 rounded-[10px] bg-primary/10 dark:bg-slate-800 flex items-center justify-center text-primary dark:text-slate-300 shrink-0 group-hover:bg-primary group-hover:text-white transition-all">
                             <span class="material-symbols-outlined text-xl">${iconName}</span>
                         </div>
                         <div class="truncate">
-                            <h4 class="font-black text-sm text-slate-900 dark:text-slate-100 truncate">${place.name}</h4>
-                            <p class="text-[10px] text-primary font-semibold mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">{{ __('Veure al mapa') }} →</p>
+                            <h4 class="font-black text-xs md:text-sm text-slate-900 dark:text-slate-100 truncate">${place.name}</h4>
+                            <p class="text-[10px] text-primary font-semibold mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity hidden md:block">{{ __('Veure al mapa') }} →</p>
                         </div>
                     </div>
-                    <div class="col-span-4 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
-                        <span class="material-symbols-outlined text-[16px] text-primary">location_on</span>
+                    <div class="col-span-4 flex items-center gap-2 text-[10px] md:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+                        <span class="material-symbols-outlined text-[14px] md:text-[16px] text-primary">location_on</span>
                         ${place.address || 'Sense adreça'}
                     </div>
-                    <div class="col-span-2">
+                    <div class="hidden md:block col-span-2">
                         <span class="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-[10px] border border-primary/10">${catName}</span>
                     </div>
                     <div class="col-span-2 flex justify-end gap-1">
-                        <button class="edit-btn w-9 h-9 flex items-center justify-center hover:bg-primary/10 text-primary rounded-[10px] transition-colors" data-id="${place.id}">
-                            <span class="material-symbols-outlined text-lg">edit</span>
+                        <button class="edit-btn w-8 h-8 md:w-9 md:h-9 flex items-center justify-center hover:bg-primary/10 text-primary rounded-[10px] transition-colors" data-id="${place.id}">
+                            <span class="material-symbols-outlined text-base md:text-lg">edit</span>
                         </button>
-                        <button class="delete-btn w-9 h-9 flex items-center justify-center hover:bg-red-50 text-red-500 rounded-[10px] transition-colors" data-id="${place.id}">
-                            <span class="material-symbols-outlined text-lg">delete</span>
+                        <button class="delete-btn w-8 h-8 md:w-9 md:h-9 flex items-center justify-center hover:bg-red-50 text-red-500 rounded-[10px] transition-colors" data-id="${place.id}">
+                            <span class="material-symbols-outlined text-base md:text-lg">delete</span>
                         </button>
                     </div>
                 </div>`;
