@@ -432,15 +432,29 @@ class AdminController extends Controller
         ]);
 
         // Stats for header cards
-        $totalUsers  = \App\Models\User::count();
-        $totalGroups = \App\Models\Group::count();
-        $totalGymkhanas = \App\Models\Gymkhana::count();
+        $totalUsers = \App\Models\User::count();
+
+        // Active groups: groups that have at least one ongoing (non-completed) gymkhana progress
+        $activeGroupIds = \App\Models\GroupProgress::whereNull('completed_at')
+                            ->distinct()
+                            ->pluck('group_id');
+        $activeGroups = \App\Models\Group::whereIn('id', $activeGroupIds)
+                            ->with('users')
+                            ->get();
+        $totalGroups = $activeGroups->count();
+
+        // Active gymkhanas: gymkhanas currently being played (have non-completed progress)
+        $activeGymkhanaIds = \App\Models\GroupProgress::whereNull('completed_at')
+                                ->distinct()
+                                ->pluck('gymkhana_id');
+        $activeGymkhanas = \App\Models\Gymkhana::whereIn('id', $activeGymkhanaIds)->get();
+        $totalGymkhanas = $activeGymkhanas->count();
 
         if ($request->ajax()) {
             return view('admin.partials.users-list', compact('users', 'search', 'roleFilter'))->render();
         }
 
-        return view('admin.users', compact('users', 'search', 'roleFilter', 'totalUsers', 'totalGroups', 'totalGymkhanas'));
+        return view('admin.users', compact('users', 'search', 'roleFilter', 'totalUsers', 'totalGroups', 'totalGymkhanas', 'activeGroups', 'activeGymkhanas'));
     }
 
     public function storeUser(Request $request)
@@ -492,5 +506,65 @@ class AdminController extends Controller
         $user->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    // ── Real-time stats for User Management ──────────────────────────────
+
+    /**
+     * Returns groups currently playing a gymkhana (non-completed progress).
+     */
+    public function getActiveGroups()
+    {
+        $activeGroupIds = \App\Models\GroupProgress::whereNull('completed_at')
+                            ->distinct()
+                            ->pluck('group_id');
+
+        $groups = \App\Models\Group::whereIn('id', $activeGroupIds)
+                    ->with(['users', 'progresses' => function ($q) {
+                        $q->whereNull('completed_at')->with('gymkhana');
+                    }])
+                    ->get()
+                    ->map(function ($group) {
+                        $progress = $group->progresses->first();
+                        return [
+                            'id'            => $group->id,
+                            'name'          => $group->name,
+                            'members'       => $group->users->count(),
+                            'gymkhana_name' => $progress?->gymkhana?->name ?? '-',
+                        ];
+                    });
+
+        return response()->json([
+            'count'  => $groups->count(),
+            'groups' => $groups,
+        ]);
+    }
+
+    /**
+     * Returns gymkhanas currently being played (non-completed progress exists).
+     */
+    public function getActiveGymkhanas()
+    {
+        $activeGymkhanaIds = \App\Models\GroupProgress::whereNull('completed_at')
+                                ->distinct()
+                                ->pluck('gymkhana_id');
+
+        $gymkhanas = \App\Models\Gymkhana::whereIn('id', $activeGymkhanaIds)
+                        ->withCount(['groupProgresses as active_groups_count' => function ($q) {
+                            $q->whereNull('completed_at');
+                        }])
+                        ->get()
+                        ->map(function ($gym) {
+                            return [
+                                'id'                 => $gym->id,
+                                'name'               => $gym->name,
+                                'active_groups_count' => $gym->active_groups_count,
+                            ];
+                        });
+
+        return response()->json([
+            'count'      => $gymkhanas->count(),
+            'gymkhanas'  => $gymkhanas,
+        ]);
     }
 }

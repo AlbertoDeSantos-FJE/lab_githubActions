@@ -6,8 +6,88 @@
 @section('content')
 <div class="flex flex-col gap-4">
 
-    {{-- ── Stats Cards ─────────────────────────────────────────────────── --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    {{-- ── Stats Cards (Mobile: Collapsible) ─────────────────────────── --}}
+    <div class="md:hidden bg-white dark:bg-slate-900 rounded-[10px] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden mb-2">
+        {{-- Trigger header --}}
+        <div id="toggle-stats-mobile" class="flex items-center justify-between cursor-pointer px-5 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+            <div>
+                <h3 class="font-black text-lg text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Estadístiques d\'usuaris') }}</h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-0.5">{{ __('Resum general') }}</p>
+            </div>
+            <span class="material-symbols-outlined text-3xl text-primary transition-transform duration-300" id="stats-mobile-icon">expand_more</span>
+        </div>
+
+        {{-- Collapsible content --}}
+        <div id="stats-mobile-content" class="overflow-hidden transition-all duration-400" style="max-height:0;opacity:0;">
+            <div class="flex flex-col gap-3 px-4 pb-4 pt-1">
+                {{-- Total Usuaris --}}
+                <div class="bg-slate-50 dark:bg-slate-800/60 rounded-[10px] p-4 border border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1">{{ __('Total Usuaris') }}</p>
+                        <p class="text-3xl font-black text-slate-900 dark:text-slate-100">{{ number_format($totalUsers) }}</p>
+                        <p class="text-[10px] text-primary font-bold mt-1">
+                            <span class="material-symbols-outlined text-[10px] align-middle" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+                            {{ __('Participants actius') }}
+                        </p>
+                    </div>
+                    <div class="w-12 h-12 rounded-[10px] bg-white dark:bg-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-600 shadow-sm border border-slate-100 dark:border-slate-700">
+                        <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">group</span>
+                    </div>
+                </div>
+
+                {{-- Grups Actius (Dynamic) --}}
+                <div class="bg-primary rounded-[10px] p-4 shadow-lg shadow-primary/30 flex flex-col gap-3 cursor-pointer relative group/card"
+                     onclick="toggleActiveGroupsList(this)">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">{{ __('Grups Actius') }}</p>
+                            <p class="text-3xl font-black text-white stat-active-groups-count">
+                                <span class="inline-block w-6 h-6 bg-white/20 rounded animate-pulse"></span>
+                            </p>
+                            <p class="text-[10px] text-white/70 font-bold mt-1">
+                                <span class="material-symbols-outlined text-[10px] align-middle" style="font-variation-settings: 'FILL' 1;">explore</span>
+                                <span class="stat-active-groups-label">{{ __('Carregant...') }}</span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-[10px] bg-white/20 flex items-center justify-center text-white/60">
+                            <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">groups</span>
+                        </div>
+                    </div>
+                    {{-- Expandable list --}}
+                    <div class="hidden mt-1 space-y-1.5 max-h-40 overflow-y-auto pr-1 active-groups-list">
+                        {{-- Populated by JS --}}
+                    </div>
+                </div>
+
+                {{-- Gimcanes en Curs (Dynamic) --}}
+                <div class="bg-slate-50 dark:bg-slate-800/60 rounded-[10px] p-4 border border-slate-100 dark:border-slate-700 flex flex-col gap-3 cursor-pointer relative"
+                     onclick="toggleActiveGymkhanasList(this)">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1">{{ __('Gimcanes en Curs') }}</p>
+                            <p class="text-3xl font-black text-slate-900 dark:text-slate-100 stat-active-gymkhanas-count">
+                                <span class="inline-block w-6 h-6 bg-slate-200 dark:bg-slate-700 rounded animate-pulse"></span>
+                            </p>
+                            <p class="text-[10px] text-orange-500 font-bold mt-1">
+                                <span class="material-symbols-outlined text-[10px] align-middle" style="font-variation-settings: 'FILL' 1;">schedule</span>
+                                <span class="stat-active-gymkhanas-label">{{ __('Carregant...') }}</span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 rounded-[10px] bg-white dark:bg-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-600 shadow-sm border border-slate-100 dark:border-slate-700">
+                            <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">map</span>
+                        </div>
+                    </div>
+                    {{-- Expandable list --}}
+                    <div class="hidden mt-1 space-y-1.5 max-h-40 overflow-y-auto pr-1 active-gymkhanas-list">
+                        {{-- Populated by JS --}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Stats Cards (Desktop: Grid) ───────────────────────────────── --}}
+    <div class="hidden md:grid grid-cols-1 md:grid-cols-3 gap-4">
         {{-- Total Usuaris --}}
         <div class="bg-white dark:bg-slate-900 rounded-[10px] p-6 shadow-sm border border-slate-50 dark:border-slate-800 flex items-center justify-between">
             <div>
@@ -23,36 +103,55 @@
             </div>
         </div>
 
-        {{-- Grups Actius --}}
-        <div class="bg-primary rounded-[10px] p-6 shadow-lg shadow-primary/30 flex items-center justify-between">
-            <div>
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">{{ __('Grups Actius') }}</p>
-                <p class="text-4xl font-black text-white">{{ $totalGroups }}</p>
-                <p class="text-xs text-white/70 font-bold mt-1">
-                    <span class="material-symbols-outlined text-sm align-middle" style="font-variation-settings: 'FILL' 1;">explore</span>
-                    {{ __('Explorant la ciutat') }}
-                </p>
+        {{-- Grups Actius (Dynamic) --}}
+        <div class="bg-primary rounded-[10px] p-6 shadow-lg shadow-primary/30 flex flex-col gap-3 cursor-pointer relative group/card"
+             onclick="toggleActiveGroupsList(this)">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-white/70 mb-1">{{ __('Grups Actius') }}</p>
+                    <p class="text-4xl font-black text-white stat-active-groups-count">
+                        <span class="inline-block w-8 h-8 bg-white/20 rounded animate-pulse"></span>
+                    </p>
+                    <p class="text-xs text-white/70 font-bold mt-1">
+                        <span class="material-symbols-outlined text-sm align-middle" style="font-variation-settings: 'FILL' 1;">explore</span>
+                        <span class="stat-active-groups-label">{{ __('Carregant...') }}</span>
+                    </p>
+                </div>
+                <div class="w-14 h-14 rounded-[10px] bg-white/20 flex items-center justify-center text-white/60">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">groups</span>
+                </div>
             </div>
-            <div class="w-14 h-14 rounded-[10px] bg-white/20 flex items-center justify-center text-white/60">
-                <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">groups</span>
+            {{-- Expandable list --}}
+            <div class="hidden mt-1 space-y-1.5 max-h-40 overflow-y-auto pr-1 active-groups-list">
+                {{-- Populated by JS --}}
             </div>
         </div>
 
-        {{-- Gimcanes en Curs --}}
-        <div class="bg-white dark:bg-slate-900 rounded-[10px] p-6 shadow-sm border border-slate-50 dark:border-slate-800 flex items-center justify-between">
-            <div>
-                <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1">{{ __('Gimcanes en Curs') }}</p>
-                <p class="text-4xl font-black text-slate-900 dark:text-slate-100">{{ $totalGymkhanas }}</p>
-                <p class="text-xs text-orange-500 font-bold mt-1">
-                    <span class="material-symbols-outlined text-sm align-middle" style="font-variation-settings: 'FILL' 1;">schedule</span>
-                    {{ __('Reptes disponibles') }}
-                </p>
+        {{-- Gimcanes en Curs (Dynamic) --}}
+        <div class="bg-white dark:bg-slate-900 rounded-[10px] p-6 shadow-sm border border-slate-50 dark:border-slate-800 flex flex-col gap-3 cursor-pointer relative"
+             onclick="toggleActiveGymkhanasList(this)">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1">{{ __('Gimcanes en Curs') }}</p>
+                    <p class="text-4xl font-black text-slate-900 dark:text-slate-100 stat-active-gymkhanas-count">
+                        <span class="inline-block w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded animate-pulse"></span>
+                    </p>
+                    <p class="text-xs text-orange-500 font-bold mt-1">
+                        <span class="material-symbols-outlined text-sm align-middle" style="font-variation-settings: 'FILL' 1;">schedule</span>
+                        <span class="stat-active-gymkhanas-label">{{ __('Carregant...') }}</span>
+                    </p>
+                </div>
+                <div class="w-14 h-14 rounded-[10px] bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-600">
+                    <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">map</span>
+                </div>
             </div>
-            <div class="w-14 h-14 rounded-[10px] bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300 dark:text-slate-600">
-                <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">map</span>
+            {{-- Expandable list --}}
+            <div class="hidden mt-1 space-y-1.5 max-h-40 overflow-y-auto pr-1 active-gymkhanas-list">
+                {{-- Populated by JS --}}
             </div>
         </div>
     </div>
+
 
     {{-- ── Main Content Block ───────────────────────────────────────────── --}}
     <div class="bg-white dark:bg-slate-900 rounded-[10px] shadow-sm border border-slate-50 dark:border-slate-800 overflow-hidden">
@@ -252,6 +351,143 @@ document.addEventListener('DOMContentLoaded', function () {
     let userToDelete = null;
     let searchTimeout;
     let currentRole = '';
+
+    // ── Mobile stats collapsible ─────────────────────────────────────────
+    (function() {
+        const toggle  = document.getElementById('toggle-stats-mobile');
+        const content = document.getElementById('stats-mobile-content');
+        const icon    = document.getElementById('stats-mobile-icon');
+        if (!toggle || !content) return;
+
+        let collapsed = true;
+
+        toggle.addEventListener('click', function() {
+            collapsed = !collapsed;
+            if (!collapsed) {
+                content.style.maxHeight  = content.scrollHeight + 'px';
+                content.style.opacity    = '1';
+                icon.style.transform     = 'rotate(0deg)';
+            } else {
+                content.style.maxHeight  = '0px';
+                content.style.opacity    = '0';
+                icon.style.transform     = 'rotate(-90deg)';
+            }
+        });
+    })();
+
+    // ── Dynamic Stats: Active Groups ──────────────────────────────────────
+    function loadActiveGroups() {
+        fetch("{{ route('admin.stats.active-groups') }}", {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.querySelectorAll('.stat-active-groups-count').forEach(el => el.textContent = data.count);
+            
+            let labelText = '';
+            let listHtml = '';
+
+            if (data.count === 0) {
+                labelText = '{{ __("Cap grup jugant ara") }}';
+                listHtml = '<p class="text-white/60 text-xs font-medium py-1">{{ __("Cap grup actiu en aquest moment") }}</p>';
+            } else {
+                labelText = data.count === 1
+                    ? '{{ __("Grup explorant la ciutat") }}'
+                    : '{{ __("Grups explorant la ciutat") }}';
+
+                listHtml = data.groups.map(g => `
+                    <div class="flex items-center justify-between bg-white/15 rounded-[8px] px-3 py-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="material-symbols-outlined text-sm text-white/80 shrink-0" style="font-variation-settings: 'FILL' 1;">group</span>
+                            <span class="text-white text-xs font-bold truncate">${g.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0 ml-2">
+                            <span class="text-white/60 text-[10px] font-medium">${g.gymkhana_name}</span>
+                            <span class="bg-white/20 text-white text-[10px] font-black px-2 py-0.5 rounded-full">${g.members} <span class="material-symbols-outlined text-[10px] align-middle" style="font-variation-settings: 'FILL' 1;">person</span></span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            document.querySelectorAll('.stat-active-groups-label').forEach(el => el.textContent = labelText);
+            document.querySelectorAll('.active-groups-list').forEach(el => el.innerHTML = listHtml);
+        })
+        .catch(() => {
+            document.querySelectorAll('.stat-active-groups-count').forEach(el => el.textContent = '-');
+            document.querySelectorAll('.stat-active-groups-label').forEach(el => el.textContent = '{{ __("Error en carregar") }}');
+        });
+    }
+
+    // ── Dynamic Stats: Active Gymkhanas ──────────────────────────────────
+    function loadActiveGymkhanas() {
+        fetch("{{ route('admin.stats.active-gymkhanas') }}", {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            document.querySelectorAll('.stat-active-gymkhanas-count').forEach(el => el.textContent = data.count);
+
+            let labelText = '';
+            let listHtml = '';
+            
+            if (data.count === 0) {
+                labelText = '{{ __("Cap gimcana en curs ara") }}';
+                listHtml = '<p class="text-slate-400 dark:text-slate-500 text-xs font-medium py-1">{{ __("Cap gimcana activa en aquest moment") }}</p>';
+            } else {
+                labelText = data.count === 1
+                    ? '{{ __("Gimcana en curs ara") }}'
+                    : '{{ __("Gimcanes en curs ara") }}';
+
+                listHtml = data.gymkhanas.map(g => `
+                    <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-[8px] px-3 py-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="material-symbols-outlined text-sm text-orange-400 shrink-0" style="font-variation-settings: 'FILL' 1;">map</span>
+                            <span class="text-slate-800 dark:text-slate-100 text-xs font-bold truncate">${g.name}</span>
+                        </div>
+                        <span class="bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ml-2">${g.active_groups_count} <span class="material-symbols-outlined text-[10px] align-middle" style="font-variation-settings: 'FILL' 1;">groups</span></span>
+                    </div>
+                `).join('');
+            }
+            
+            document.querySelectorAll('.stat-active-gymkhanas-label').forEach(el => el.textContent = labelText);
+            document.querySelectorAll('.active-gymkhanas-list').forEach(el => el.innerHTML = listHtml);
+        })
+        .catch(() => {
+            document.querySelectorAll('.stat-active-gymkhanas-count').forEach(el => el.textContent = '-');
+            document.querySelectorAll('.stat-active-gymkhanas-label').forEach(el => el.textContent = '{{ __("Error en carregar") }}');
+        });
+    }
+
+    // ── Toggle expandable lists ───────────────────────────────────────────
+    window.toggleActiveGroupsList = function(card) {
+        const list = card.querySelector('.active-groups-list');
+        if (list) list.classList.toggle('hidden');
+        
+        // Ensure parent container expands to fit content if inside mobile wrapper
+        const content = document.getElementById('stats-mobile-content');
+        if (content && content.style.maxHeight !== '0px') {
+            setTimeout(() => {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }, 50);
+        }
+    };
+
+    window.toggleActiveGymkhanasList = function(card) {
+        const list = card.querySelector('.active-gymkhanas-list');
+        if (list) list.classList.toggle('hidden');
+        
+        // Ensure parent container expands to fit content if inside mobile wrapper
+        const content = document.getElementById('stats-mobile-content');
+        if (content && content.style.maxHeight !== '0px') {
+            setTimeout(() => {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            }, 50);
+        }
+    };
+
+    // Load on page init
+    loadActiveGroups();
+    loadActiveGymkhanas();
 
     // ── Alert Helper ─────────────────────────────────────────────────────
     const infoModal      = document.getElementById('user-info-modal');

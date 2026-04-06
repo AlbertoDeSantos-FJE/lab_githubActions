@@ -51,6 +51,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
         Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('admin.users.update');
         Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('admin.users.destroy');
+        Route::get('/stats/active-groups', [AdminController::class, 'getActiveGroups'])->name('admin.stats.active-groups');
+        Route::get('/stats/active-gymkhanas', [AdminController::class, 'getActiveGymkhanas'])->name('admin.stats.active-gymkhanas');
     });
 });
 Route::get('lang/{locale}', [LocaleController::class, 'switch'])->name('lang.switch');
