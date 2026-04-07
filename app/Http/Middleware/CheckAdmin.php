@@ -19,6 +19,6 @@ class CheckAdmin
             return $next($request);
         }
 
-        return redirect('/')->with('error', 'Accés denegat. Aquesta àrea és només per a administradors.');
+        return redirect('/main')->with('error', 'Accés denegat. Aquesta àrea és només per a administradors.');
     }
 }

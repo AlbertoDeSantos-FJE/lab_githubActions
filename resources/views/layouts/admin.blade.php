@@ -62,6 +62,15 @@
                 @endforeach
             </nav>
 
+            <div class="px-2 pb-4 pt-2">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-[10px] text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all group">
+                        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">logout</span>
+                        <span class="text-sm font-bold">{{ __('Sortir') }}</span>
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <!-- Main Content -->
