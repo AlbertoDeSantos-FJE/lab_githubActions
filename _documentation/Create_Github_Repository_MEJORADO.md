@@ -234,3 +234,33 @@ No se puede borrar la rama en la que estás actualmente. Primero te has de mover
 git checkout main  # o git switch main
 git branch -d nombre-de-la-rama
 ```
+
+Anular un commit. Hay dos opciones:
+
+Para eliminar el último commit en Git utiliza ``` bash git reset --soft HEAD~1 ```para mantener los cambios en local o ``` bash git reset --hard HEAD~1 ``` para borrarlos por completo. 
+Si ya hiciste push, usa ``` bash git revert  <commit>``` bash  para crear un nuevo commit que deshaga los cambios de forma segura sin reescribir el historial compartido. 
+
+# Escenario 1: El commit está solo en tu máquina (No has hecho push) 
+
+1. __Mantener los cambios__: Si quieres borrar el commit pero conservar los archivos modificados en tu zona de trabajo (staging), usa ``` bash git reset --soft HEAD~1 ```
+
+2. __Borrar todo por completo__: Si quieres eliminar el commit y todos los cambios asociados (volver al estado anterior por completo), usa: ``` bash git reset --hard HEAD~1 ```    
+
+# Escenario 2: El commit ya está en el repositorio remoto (push realizado) 
+
+1. Lo más seguro (Revertir): Crea un nuevo commit que deshaga los cambios del anterior. Es la mejor opción si compartes la rama:
+
+``` bash
+git log # Encuentra el hash del commit
+git revert <hash_del_commit>
+git push origin <nombre_de_la_rama>
+```
+2. Forzar la eliminación (Peligroso): Si eres el único trabajando en la rama, puedes resetear localmente y forzar el push:
+
+``` bash
+git reset --hard HEAD~1
+git push origin <nombre_de_la_rama> --force
+```
+
+[Guía de cómo deshacer un commit en Git](https://www.youtube.com/shorts/Ocz-_cvKijk)
+
