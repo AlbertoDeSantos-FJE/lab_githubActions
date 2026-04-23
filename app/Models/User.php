@@ -22,7 +22,19 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'profile_photo',
     ];
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class);
+    }
+
+    public function favoritePlaces()
+    {
+        return $this->belongsToMany(Place::class, 'favorites');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -45,5 +57,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the user's profile photo URL.
+     *
+     * @return string
+     */
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo 
+            ? asset('storage/' . $this->profile_photo) 
+            : null;
     }
 }

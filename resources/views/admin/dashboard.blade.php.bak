@@ -1,0 +1,711 @@
+@extends('layouts.admin')
+
+@section('title', __('Gestió de Llocs'))
+@section('header_title', __('Gestió de Llocs'))
+
+@push('head')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@endpush
+
+@section('content')
+<!-- Dashboard Layout -->
+<div class="flex flex-col gap-8">
+    <!-- Top Section: Map and Add Place -->
+    <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-stretch shrink-0">
+        <!-- Central Map Section -->
+        <div class="xl:col-span-8 flex flex-col gap-4">
+            <div class="flex-1 bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden relative shadow-sm group border border-slate-100 dark:border-slate-800 min-h-[600px]">
+                <div id="main-map" class="absolute inset-0 z-0"></div>
+            </div>
+        </div>
+        <!-- Add Place Form -->
+        <div class="xl:col-span-4 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 shadow-sm flex flex-col gap-6 border border-slate-100 dark:border-slate-800">
+            <div>
+                <h3 class="font-black text-xl text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Afegir Nou Lloc') }}</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ __('Dades del nou punt d\'interès per a la ruta.') }}</p>
+            </div>
+            <div class="space-y-4 flex-1">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Nom del Lloc') }}</label>
+                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="place_name" placeholder="Ex: Restaurant L'H" type="text"/>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Adreça') }}</label>
+                    <div class="relative">
+                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="place_address" placeholder="Carrer de l'Hospitalet, 42" type="text"/>
+                        <button type="button" id="btn-search-coords" class="absolute right-4 top-2.5 text-primary text-xl hover:scale-110 transition-all">
+                            <span class="material-symbols-outlined">search</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Latitud') }}</label>
+                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 dark:text-slate-100 outline-none font-medium" id="place_lat" readonly placeholder="41.3597" type="text"/>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Longitud') }}</label>
+                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 dark:text-slate-100 outline-none font-medium" id="place_lng" readonly placeholder="2.1003" type="text"/>
+                    </div>
+                </div>
+                <div class="space-y-1.5 focus-within:z-10 relative">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Descripció') }}</label>
+                    <textarea class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium resize-none" id="place_description" placeholder="{{ __('Petita descripció del lloc...') }}" rows="3"></textarea>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Imatge del Lloc') }}</label>
+                    <div class="relative group/img">
+                        <input type="file" id="place_image" class="hidden" accept="image/*">
+                        <label for="place_image" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl px-5 py-3 flex items-center gap-3 cursor-pointer group-hover/img:bg-[#e8d5ff] dark:group-hover/img:bg-slate-800 transition-all">
+                            <span class="material-symbols-outlined text-primary">image</span>
+                            <span id="image-name" class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">{{ __('Selecciona una imatge...') }}</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Categories') }}</label>
+                    <div id="place-categories" class="bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl p-4 max-h-[140px] overflow-y-auto space-y-2"></div>
+                </div>
+            </div>
+            <button id="btn-save-place" type="button" class="w-full bg-primary text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-dim shadow-xl shadow-primary/30 transition-all active:scale-95 text-sm uppercase tracking-widest mt-auto">
+                <span class="material-symbols-outlined">add_location</span>
+                {{ __('Guardar Punt') }}
+            </button>
+        </div>
+    </div>
+
+    <!-- Expanded Places List Section -->
+    <div class="flex flex-col gap-6 mt-12">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h3 class="font-black text-3xl text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Llistat de Llocs') }}</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ __('Gestiona els elements existents a la base de dades.') }}</p>
+            </div>
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="relative w-full md:w-48 group">
+                    <button id="filter-btn" class="w-full px-4 py-2.5 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 font-bold rounded-2xl text-xs flex items-center justify-between gap-2 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <span class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg text-primary">filter_alt</span>
+                            {{ __('Filtrar') }}
+                        </span>
+                        <span class="material-symbols-outlined text-lg">expand_more</span>
+                    </button>
+                    <div id="filter-dropdown" class="absolute right-0 top-full mt-1 w-full bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-700 hidden overflow-hidden z-20">
+                        <a class="block px-4 py-3 text-xs font-bold hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100" href="#" onclick="window.filterCategory(null); return false;">{{ __('Totes') }}</a>
+                    </div>
+                </div>
+                <button class="px-6 py-2.5 bg-primary text-white font-black rounded-2xl text-xs flex items-center gap-2 hover:bg-primary-dim transition-all shadow-sm">
+                    <span class="material-symbols-outlined text-lg">download</span>
+                    {{ __('Exportar') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Header Row -->
+        <div class="grid grid-cols-12 gap-4 px-8 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+            <div class="col-span-4">{{ __('Nom i Localització') }}</div>
+            <div class="col-span-4">{{ __('Adreça') }}</div>
+            <div class="col-span-2">{{ __('Categoria') }}</div>
+            <div class="col-span-2 text-right">{{ __('Accions') }}</div>
+        </div>
+
+        <!-- List of Items -->
+        <div id="places-list" class="flex flex-col gap-3"></div>
+
+        <!-- Pagination Component -->
+        <div id="pagination-container" class="flex justify-end items-center gap-2 mt-4 px-2"></div>
+    </div>
+</div>
+
+<!-- Edit Place Modal -->
+<div id="edit-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300 overflow-y-auto max-h-[90vh]">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Editar Lloc d\'Interès') }}</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 font-medium">{{ __('Modifica les dades d\'aquest punt de la ruta.') }}</p>
+            </div>
+            <button id="close-edit-modal" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <form id="edit-place-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <input type="hidden" id="edit_place_id">
+            <div class="space-y-4">
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Nom del Lloc') }}</label>
+                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="edit_place_name" type="text" required/>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Adreça') }}</label>
+                    <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium" id="edit_place_address" type="text"/>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Latitud') }}</label>
+                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 outline-none font-medium" id="edit_place_lat" type="text" required/>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Longitud') }}</label>
+                        <input class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 outline-none font-medium" id="edit_place_lng" type="text" required/>
+                    </div>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Categoria') }}</label>
+                    <select id="edit_place_category" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all outline-none font-medium appearance-none">
+                    </select>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="space-y-1.5 h-full flex flex-col">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Descripció') }}</label>
+                    <textarea class="flex-1 w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl text-sm px-5 py-3 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-slate-400 dark:text-slate-100 outline-none font-medium resize-none min-h-[120px]" id="edit_place_description" rows="5"></textarea>
+                </div>
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.15em] px-1">{{ __('Imatge Nova (Opcional)') }}</label>
+                    <input type="file" id="edit_place_image" class="hidden" accept="image/*">
+                    <label for="edit_place_image" class="w-full bg-[#f0e3ff] dark:bg-slate-800/50 border-none rounded-2xl px-5 py-3 flex items-center gap-3 cursor-pointer hover:bg-primary/5 transition-all mb-2">
+                        <span class="material-symbols-outlined text-primary">image</span>
+                        <span id="edit-image-name" class="text-xs font-bold text-slate-500 dark:text-slate-400 truncate">{{ __('Selecciona una imatge...') }}</span>
+                    </label>
+                    <div id="current-image-preview" class="hidden w-full h-32 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 relative group">
+                        <img src="" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-[10px] font-black uppercase tracking-widest">{{ __('Imatge Actual') }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="md:col-span-2 pt-6">
+                <button type="submit" class="w-full bg-primary text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-dim shadow-xl shadow-primary/30 transition-all active:scale-95 text-sm uppercase tracking-widest">
+                    <span class="material-symbols-outlined">save</span>
+                    {{ __('Guardar Canvis') }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete Place Modal -->
+<div id="delete-place-modal" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-900/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-10 shadow-2xl border border-slate-100 dark:border-slate-800 scale-95 transition-transform duration-300">
+        <div class="w-20 h-20 bg-red-50 dark:bg-red-500/10 rounded-3xl flex items-center justify-center mb-8 mx-auto">
+            <span class="material-symbols-outlined text-4xl text-red-500">warning</span>
+        </div>
+        <div class="text-center mb-10">
+            <h3 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">{{ __('Eliminar Lloc') }}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 font-medium mt-3 leading-relaxed">
+                {{ __('Estàs segur que vols eliminar aquest punt d\'interès? Aquesta acció no es pot desfer.') }}
+            </p>
+        </div>
+        <div class="flex flex-col gap-4">
+            <button id="confirm-delete-place" class="w-full bg-red-500 text-white py-4 rounded-2xl font-black shadow-xl shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all uppercase tracking-widest text-xs">
+                {{ __('SÍ, ELIMINAR') }}
+            </button>
+            <button id="cancel-delete-place" class="w-full bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 py-4 rounded-2xl font-black hover:bg-slate-100 dark:hover:bg-slate-700 transition-all uppercase tracking-widest text-xs">
+                {{ __('CANCEL·LAR') }}
+            </button>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const HOST = '{{ url('/admin') }}'; 
+        let map;
+        try {
+            map = L.map('main-map').setView([41.3663, 2.1167], 14); 
+        } catch (e) {
+            console.error("Leaflet initialization failed", e);
+            document.getElementById('main-map').innerHTML = '<div class="flex items-center justify-center h-full text-red-500 font-bold">Error carregant el mapa</div>';
+            return;
+        }
+        
+        const lightTiles = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+        const attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+        let currentLayer = L.tileLayer(document.documentElement.classList.contains('dark') ? darkTiles : lightTiles, {
+            attribution: attribution
+        }).addTo(map);
+
+        window.updateMapTheme = function() {
+            const isDark = document.documentElement.classList.contains('dark');
+            map.removeLayer(currentLayer);
+            currentLayer = L.tileLayer(isDark ? darkTiles : lightTiles, {
+                attribution: attribution
+            }).addTo(map);
+            setTimeout(() => map.invalidateSize(), 100);
+        };
+
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                setTimeout(window.updateMapTheme, 150);
+            });
+        }
+
+        setTimeout(() => map.invalidateSize(), 250);
+
+        let activeMarkers = [];
+        let markersByPlaceId = {};
+        let placesData = [];
+        let categoriesData = [];
+        let tempMarker = null;
+        
+        let searchQuery = "";
+        let currentFilter = null;
+        
+        let currentPage = 1;
+        let itemsPerPage = 5;
+
+        async function loadCategories() {
+            try {
+                const res = await fetch(`${HOST}/categories`);
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                categoriesData = await res.json();
+                
+                const catsContainer = document.getElementById('place-categories');
+                const dropdown = document.getElementById('filter-dropdown');
+                
+                if (catsContainer) catsContainer.innerHTML = '';
+                
+                categoriesData.forEach(cat => {
+                    if (catsContainer) {
+                        catsContainer.innerHTML += `
+                        <label class="flex items-center gap-3 p-2 hover:bg-white dark:hover:bg-slate-800 rounded-xl cursor-pointer transition-colors group">
+                            <input class="rounded-lg border-slate-300 dark:border-slate-600 text-primary focus:ring-primary h-5 w-5 cat-checkbox dark:bg-slate-700" type="checkbox" value="${cat.id}"/>
+                            <span class="text-sm font-semibold text-slate-600 dark:text-slate-400 group-hover:text-primary transition-colors">${cat.name}</span>
+                        </label>`;
+                    }
+                    
+                    if (dropdown) {
+                        dropdown.innerHTML += `<a class="block px-4 py-3 text-xs font-bold hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100" href="#" onclick="window.filterCategory(${cat.id}); return false;">${cat.name}</a>`;
+                    }
+                });
+            } catch (e) {
+                console.error("Failed to load categories", e);
+            }
+        }
+
+        const filterBtn = document.getElementById('filter-btn');
+        const filterDropdown = document.getElementById('filter-dropdown');
+        
+        filterBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            filterDropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!filterDropdown.contains(e.target) && !filterBtn.contains(e.target)) {
+                filterDropdown.classList.add('hidden');
+            }
+        });
+
+        window.filterCategory = function(catId) {
+            filterDropdown.classList.add('hidden');
+            currentFilter = catId;
+            currentPage = 1;
+            renderPlaces();
+        };
+
+        const searchInput = document.getElementById('search-input');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                searchQuery = e.target.value.toLowerCase();
+                currentPage = 1;
+                renderPlaces();
+            });
+        }
+
+        async function loadPlaces() {
+            try {
+                const res = await fetch(`${HOST}/places`);
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                placesData = await res.json();
+                renderPlaces();
+            } catch (e) {
+                console.error("Failed to load places", e);
+                const listContainer = document.getElementById('places-list');
+                if (listContainer) listContainer.innerHTML = '<div class="p-8 text-center text-red-500 font-bold">Error carregant el llistat</div>';
+            }
+        }
+
+        function createCustomIcon(category) {
+            const color = category && category.color ? category.color : '#5D3FD3';
+            return L.divIcon({
+                html: `
+                    <div style="position: relative; width: 34px; height: 44px; display: flex; align-items: center; justify-content: center;">
+                        <svg width="40" height="50" viewBox="0 0 40 50" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Ground shadow (Ellipse) -->
+                            <ellipse cx="20" cy="42" rx="12" ry="4" fill="rgba(0,0,0,0.2)" filter="blur(3px)"/>
+                            <!-- Pin shadow (Offset path) -->
+                            <path d="M20 32C20 32 32 18.5 32 12C32 5.373 26.627 0 20 0C13.373 0 8 5.373 8 12C8 18.5 20 32 20 32Z" 
+                                fill="rgba(0,0,0,0.1)" transform="translate(2, 2)" filter="blur(1px)"/>
+                            <!-- Main Pin -->
+                            <path d="M20 32C20 32 32 18.5 32 12C32 5.373 26.627 0 20 0C13.373 0 8 5.373 8 12C8 18.5 20 32 20 32Z" 
+                                fill="${color}" style="filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));"/>
+                            <!-- Inner Circle -->
+                            <circle cx="20" cy="12" r="5" fill="white"/>
+                        </svg>
+                    </div>`,
+                className: "custom-div-icon",
+                iconSize: [40, 50],
+                iconAnchor: [20, 50],
+                popupAnchor: [0, -45]
+            });
+        }
+
+        function renderPlaces() {
+            activeMarkers.forEach(m => map.removeLayer(m));
+            activeMarkers = [];
+            markersByPlaceId = {};
+            
+            const listContainer = document.getElementById('places-list');
+            listContainer.innerHTML = '';
+            
+            const filteredData = placesData.filter(place => {
+                const matchesCategory = currentFilter === null || place.category_id === parseInt(currentFilter);
+                const matchesSearch = searchQuery === "" || place.name.toLowerCase().includes(searchQuery);
+                return matchesCategory && matchesSearch;
+            });
+            
+            const totalItems = filteredData.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+            
+            filteredData.forEach(place => {
+                // Find the category object to get its color
+                const category = categoriesData.find(c => c.id == place.category_id);
+                let m = L.marker([place.latitude, place.longitude], {
+                    icon: createCustomIcon(category)
+                }).addTo(map);
+                m.bindPopup(`
+                    <div class="p-2 min-w-[200px]">
+                        <div class="flex justify-between items-start mb-2">
+                            <h5 class="font-black text-slate-900 dark:text-slate-100 text-lg leading-tight pr-4">${place.name}</h5>
+                            <div class="flex gap-1 shrink-0">
+                                <button class="edit-btn-map w-8 h-8 flex items-center justify-center bg-primary/10 text-primary rounded-lg hover:bg-primary hover:text-white transition-all active:scale-90" data-id="${place.id}">
+                                    <span class="material-symbols-outlined text-base">edit</span>
+                                </button>
+                                <button class="delete-btn-map w-8 h-8 flex items-center justify-center bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-all active:scale-90" data-id="${place.id}">
+                                    <span class="material-symbols-outlined text-base">delete</span>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3 font-medium line-clamp-2">${place.description || ''}</p>
+                        <div class="flex items-center gap-1.5 text-xs text-slate-400 font-bold">
+                            <span class="material-symbols-outlined text-sm">location_on</span>
+                            ${place.address || ''}
+                        </div>
+                    </div>
+                `, { closeButton: false });
+                activeMarkers.push(m);
+                markersByPlaceId[place.id] = m;
+            });
+
+            paginatedData.forEach(place => {
+                const catName = place.category ? place.category.name : 'SENSE CATEGORIA';
+                const iconName = place.category && place.category.icon ? place.category.icon : 'location_on';
+                
+                listContainer.innerHTML += `
+                <div class="place-row grid grid-cols-12 gap-4 items-center bg-white dark:bg-slate-900 px-8 py-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:border-primary/30 hover:shadow-md transition-all group cursor-pointer" data-place-id="${place.id}">
+                    <div class="col-span-4 flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 dark:bg-slate-800 flex items-center justify-center text-primary dark:text-slate-300 shrink-0 group-hover:bg-primary group-hover:text-white transition-all">
+                            <span class="material-symbols-outlined text-xl">${iconName}</span>
+                        </div>
+                        <div class="truncate">
+                            <h4 class="font-black text-sm text-slate-900 dark:text-slate-100 truncate">${place.name}</h4>
+                            <p class="text-[10px] text-primary font-semibold mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">{{ __('Veure al mapa') }} →</p>
+                        </div>
+                    </div>
+                    <div class="col-span-4 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+                        <span class="material-symbols-outlined text-[16px] text-primary">location_on</span>
+                        ${place.address || 'Sense adreça'}
+                    </div>
+                    <div class="col-span-2">
+                        <span class="text-[9px] font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/10">${catName}</span>
+                    </div>
+                    <div class="col-span-2 flex justify-end gap-1">
+                        <button class="edit-btn w-9 h-9 flex items-center justify-center hover:bg-primary/10 text-primary rounded-xl transition-colors" data-id="${place.id}">
+                            <span class="material-symbols-outlined text-lg">edit</span>
+                        </button>
+                        <button class="delete-btn w-9 h-9 flex items-center justify-center hover:bg-red-50 text-red-500 rounded-xl transition-colors" data-id="${place.id}">
+                            <span class="material-symbols-outlined text-lg">delete</span>
+                        </button>
+                    </div>
+                </div>`;
+            });
+
+            renderPagination(totalPages);
+
+            if (activeMarkers.length > 0 && (searchQuery !== "" || currentFilter !== null)) {
+                const group = new L.featureGroup(activeMarkers);
+                map.fitBounds(group.getBounds(), { padding: [50, 50], maxZoom: 16 });
+                setTimeout(() => map.invalidateSize(), 200);
+            }
+
+            // Deletion logic (Delegated for map popups)
+            document.getElementById('places-list').addEventListener('click', handleAction);
+            document.getElementById('main-map').addEventListener('click', handleAction);
+
+            let placeToDelete = null;
+
+            async function handleAction(e) {
+                const deleteBtn = e.target.closest('.delete-btn, .delete-btn-map');
+                const editBtn = e.target.closest('.edit-btn, .edit-btn-map');
+
+                if (deleteBtn) {
+                    placeToDelete = deleteBtn.dataset.id;
+                    const modal = document.getElementById('delete-place-modal');
+                    modal.classList.remove('hidden');
+                    setTimeout(() => {
+                        modal.classList.remove('opacity-0');
+                        modal.querySelector('div').classList.remove('scale-95');
+                    }, 10);
+                }
+
+                if (editBtn) {
+                    const id = editBtn.dataset.id;
+                    openEditModal(id);
+                }
+            }
+
+            const closeDeleteModal = () => {
+                const modal = document.getElementById('delete-place-modal');
+                modal.classList.add('opacity-0');
+                modal.querySelector('div').classList.add('scale-95');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+                placeToDelete = null;
+            };
+
+            document.getElementById('cancel-delete-place').addEventListener('click', closeDeleteModal);
+            
+            document.getElementById('confirm-delete-place').addEventListener('click', async function() {
+                if (!placeToDelete) return;
+                const csrf = document.querySelector('meta[name="csrf-token"]').content;
+                const res = await fetch(`${HOST}/places/${placeToDelete}`, { 
+                    method: 'DELETE', 
+                    headers: { 'X-CSRF-TOKEN': csrf } 
+                });
+                
+                if (res.ok) {
+                    closeDeleteModal();
+                    loadPlaces();
+                } else {
+                    alert("Error eliminant el lloc.");
+                }
+            });
+
+            function openEditModal(id) {
+                const place = placesData.find(p => p.id == id);
+                if (!place) return;
+
+                document.getElementById('edit_place_id').value = place.id;
+                document.getElementById('edit_place_name').value = place.name;
+                document.getElementById('edit_place_address').value = place.address || '';
+                document.getElementById('edit_place_description').value = place.description || '';
+                document.getElementById('edit_place_lat').value = place.latitude;
+                document.getElementById('edit_place_lng').value = place.longitude;
+                
+                const catSelect = document.getElementById('edit_place_category');
+                catSelect.innerHTML = categoriesData.map(c => `<option value="${c.id}" ${c.id == place.category_id ? 'selected' : ''}>${c.name}</option>`).join('');
+                
+                const preview = document.getElementById('current-image-preview');
+                if (place.image) {
+                    preview.classList.remove('hidden');
+                    preview.querySelector('img').src = `/storage/${place.image}`;
+                } else {
+                    preview.classList.add('hidden');
+                }
+
+                const modal = document.getElementById('edit-modal');
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.querySelector('div').classList.remove('scale-95');
+                }, 10);
+            }
+        }
+
+        // Focus map when a list row is clicked (but not on action buttons)
+        // Registered ONCE here with delegation to avoid duplicate listeners on re-render
+        document.getElementById('places-list').addEventListener('click', function(e) {
+            if (e.target.closest('.edit-btn, .delete-btn')) return;
+            const row = e.target.closest('.place-row');
+            if (!row) return;
+            const placeId = row.dataset.placeId;
+            const marker = markersByPlaceId[placeId];
+            if (!marker) return;
+            map.setView(marker.getLatLng(), 17, { animate: true });
+            setTimeout(() => marker.openPopup(), 350);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        const closeEditModal = () => {
+            const modal = document.getElementById('edit-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        document.getElementById('close-edit-modal').addEventListener('click', closeEditModal);
+
+        document.getElementById('edit-place-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit_place_id').value;
+            const formData = new FormData();
+            formData.append('_method', 'PUT'); // For Laravel with file uploads
+            formData.append('name', document.getElementById('edit_place_name').value);
+            formData.append('description', document.getElementById('edit_place_description').value);
+            formData.append('address', document.getElementById('edit_place_address').value);
+            formData.append('latitude', document.getElementById('edit_place_lat').value);
+            formData.append('longitude', document.getElementById('edit_place_lng').value);
+            formData.append('category_id', document.getElementById('edit_place_category').value);
+            
+            const imageFile = document.getElementById('edit_place_image').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+            const res = await fetch(`${HOST}/places/${id}`, {
+                method: 'POST', // Still POST because of _method=PUT and files
+                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                body: formData
+            });
+
+            if(res.ok) {
+                closeEditModal();
+                loadPlaces();
+            } else {
+                alert("Error actualitzant el lloc.");
+            }
+        });
+
+        function renderPagination(totalPages) {
+            const container = document.getElementById('pagination-container');
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button onclick="changePage(${currentPage - 1})" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:bg-primary hover:text-white transition-all ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === 1 ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <div class="flex items-center gap-2">`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-white font-black text-xs shadow-lg shadow-primary/20">${i}</button>`;
+                } else {
+                    html += `<button onclick="changePage(${i})" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 font-black text-xs hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">${i}</button>`;
+                }
+            }
+
+            html += `</div>
+                <button onclick="changePage(${currentPage + 1})" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-slate-400 hover:bg-primary hover:text-white transition-all ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}" ${currentPage === totalPages ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>`;
+
+            container.innerHTML = html;
+        }
+
+        window.changePage = function(page) {
+            currentPage = page;
+            renderPlaces();
+        }
+
+        // Image name feedback
+        document.getElementById('place_image').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Selecciona una imatge...';
+            document.getElementById('image-name').textContent = fileName;
+        });
+
+        document.getElementById('edit_place_image').addEventListener('change', function(e) {
+            const fileName = e.target.files[0] ? e.target.files[0].name : 'Selecciona una imatge...';
+            document.getElementById('edit-image-name').textContent = fileName;
+        });
+
+        document.getElementById('btn-save-place').addEventListener('click', async function(e) {
+            const checkedCats = document.querySelectorAll('.cat-checkbox:checked');
+            const catId = checkedCats.length > 0 ? checkedCats[0].value : null;
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('place_name').value);
+            formData.append('description', document.getElementById('place_description').value);
+            formData.append('address', document.getElementById('place_address').value);
+            formData.append('latitude', document.getElementById('place_lat').value);
+            formData.append('longitude', document.getElementById('place_lng').value);
+            formData.append('category_id', catId);
+            
+            const imageFile = document.getElementById('place_image').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            if(!document.getElementById('place_name').value || !document.getElementById('place_lat').value || !catId){
+                alert("Nom, Coordenades i Categoria són obligatoris.");
+                return;
+            }
+
+            const csrf = document.querySelector('meta[name="csrf-token"]').content;
+            const res = await fetch(`${HOST}/places`, {
+                method: 'POST',
+                headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                body: formData
+            });
+
+            if(res.ok) {
+                document.getElementById('place_name').value = '';
+                document.getElementById('place_description').value = '';
+                document.getElementById('place_address').value = '';
+                document.getElementById('place_lat').value = '';
+                document.getElementById('place_lng').value = '';
+                document.getElementById('place_image').value = '';
+                document.getElementById('image-name').textContent = 'Selecciona una imatge...';
+                checkedCats.forEach(c => c.checked = false);
+                
+                if(tempMarker) map.removeLayer(tempMarker);
+                loadPlaces();
+            } else {
+                alert("Error afegint el lloc.");
+            }
+        });
+
+        map.on('click', function(e) {
+            document.getElementById('place_lat').value = e.latlng.lat.toFixed(6);
+            document.getElementById('place_lng').value = e.latlng.lng.toFixed(6);
+            
+            if(tempMarker) map.removeLayer(tempMarker);
+            tempMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map).bindPopup("Nova Ubicació").openPopup();
+        });
+
+        document.getElementById('btn-search-coords').addEventListener('click', async function() {
+            const query = document.getElementById('place_address').value;
+            if(!query) return;
+            
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            
+            if(data && data.length > 0) {
+                const lat = data[0].lat;
+                const lon = data[0].lon;
+                map.setView([lat, lon], 16);
+                document.getElementById('place_lat').value = lat;
+                document.getElementById('place_lng').value = lon;
+                if(tempMarker) map.removeLayer(tempMarker);
+                tempMarker = L.marker([lat, lon]).addTo(map).bindPopup("Ubicació trobada!").openPopup();
+            }
+        });
+
+        loadCategories().then(loadPlaces);
+    });
+</script>
+@endpush

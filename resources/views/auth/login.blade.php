@@ -103,30 +103,13 @@
 <header class="fixed top-0 w-full z-50 bg-[#fcf4ff]/70 dark:bg-slate-950/70 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
 <div class="flex items-center gap-2">
 <span class="material-symbols-outlined text-[#5d3fd3] dark:text-[#a391ff]" data-icon="map">map</span>
-<h1 class="font-['Plus_Jakarta_Sans'] font-bold text-lg tracking-tight text-[#5d3fd3] dark:text-[#a391ff]">{{ __('Guia de l\'Hospitalet') }}</h1>
+<h1 class="font-['Plus_Jakarta_Sans'] font-bold text-lg tracking-tight text-[#5d3fd3] dark:text-[#a391ff]">Guia de l'Hospitalet</h1>
 </div>
 <div class="flex items-center gap-4">
-<div class="relative group">
-    <button class="text-[#36274e] dark:text-slate-400 font-semibold text-sm hover:bg-[#f7edff] dark:hover:bg-slate-800 transition-colors px-3 py-1 rounded-full Active: scale-95 duration-150 flex items-center gap-1">
-        {{ strtoupper(app()->getLocale()) }}
-        <span class="material-symbols-outlined text-sm">expand_more</span>
-    </button>
-    <div class="absolute right-0 top-full mt-1 w-32 bg-white dark:bg-slate-800 rounded-[10px] shadow-xl border border-outline-variant/20 hidden group-hover:block overflow-hidden z-50">
-        <a class="block px-4 py-2 text-xs hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200" href="{{ route('lang.switch', 'ca') }}">Català</a>
-        <a class="block px-4 py-2 text-xs hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200" href="{{ route('lang.switch', 'es') }}">Español</a>
-        <a class="block px-4 py-2 text-xs hover:bg-[#f7edff] dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200" href="{{ route('lang.switch', 'en') }}">English</a>
-    </div>
-</div>
+<button class="text-[#36274e] dark:text-slate-400 font-semibold text-sm hover:bg-[#f7edff] dark:hover:bg-slate-800 transition-colors px-3 py-1 rounded-full Active: scale-95 duration-150">
+                CA/ES/EN
+            </button>
 <span class="material-symbols-outlined text-[#36274e] dark:text-slate-400 cursor-pointer" data-icon="dark_mode">dark_mode</span>
-@auth
-<a href="{{ route('profile') }}" class="ml-2 w-8 h-8 rounded-full bg-primary overflow-hidden border border-primary/20 cursor-pointer flex items-center justify-center text-inherit no-underline">
-    @if(Auth::user()->profile_photo)
-        <img alt="User profile" class="w-full h-full object-cover" src="{{ Auth::user()->profile_photo_url }}"/>
-    @else
-        <span class="material-symbols-outlined text-white text-xl">person</span>
-    @endif
-</a>
-@endauth
 </div>
 </header>
 <main class="pt-24 pb-12 px-6 flex flex-col items-center min-h-screen max-w-md mx-auto">
@@ -155,48 +138,32 @@
                     Registra't
                 </button>
 </div>
-<!-- Auth Content -->
-<div class="px-4 pb-8 text-center">
-    @auth
-        <div class="py-6 space-y-4">
-            <p class="text-on-surface-variant dark:text-slate-400 font-medium">Hola, <span class="font-bold text-primary">{{ Auth::user()->name }}</span>!</p>
-            <div class="flex flex-col gap-3">
-                <a href="{{ Auth::user()->role === 'admin' ? route('admin.dashboard') : route('profile') }}" class="w-full bg-primary text-on-primary py-4 rounded-full font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-inherit no-underline">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    Ves al Panell
-                </a>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="w-full text-error font-bold text-sm hover:underline">Tancar sessió</button>
-                </form>
-            </div>
+<!-- Login Form (Visible by Default) -->
+<form method="POST" action="{{ route('login') }}" class="px-4 pb-6 space-y-5">
+    @csrf
+    <div class="space-y-1.5">
+        <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant dark:text-slate-400 px-1" for="email">Correu electrònic</label>
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="mail">mail</span>
+            <input name="email" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-[10px] text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all" id="email" placeholder="nom@exemple.com" type="email"/>
         </div>
-    @else
-        <!-- Login Form -->
-        <form method="POST" action="{{ route('login') }}" class="space-y-5 text-left">
-            @csrf
-            <div class="space-y-1.5">
-                <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant dark:text-slate-400 px-1" for="email">Correu electrònic</label>
-                <div class="relative">
-                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="mail">mail</span>
-                    <input name="email" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-[10px] text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all font-inherit" id="email" placeholder="nom@exemple.com" type="email"/>
-                </div>
-            </div>
-            <div class="space-y-1.5">
-                <div class="flex justify-between items-center px-1">
-                    <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant dark:text-slate-400" for="password">Contrasenya</label>
-                </div>
-                <div class="relative">
-                    <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="lock">lock</span>
-                    <input name="password" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-[10px] text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all font-inherit" id="password" placeholder="••••••••" type="password"/>
-                </div>
-            </div>
-            <button class="w-full bg-primary text-on-primary py-4 rounded-full font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all" type="submit">
-                Entrar a l'Hospitalet
-            </button>
-        </form>
-    @endauth
-</div>
+        @error('email')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+    </div>
+    <div class="space-y-1.5">
+        <div class="flex justify-between items-center px-1">
+            <label class="block text-xs font-bold uppercase tracking-widest text-on-surface-variant dark:text-slate-400" for="password">Contrasenya</label>
+            <a class="text-xs font-semibold text-primary hover:underline" href="#">Recuperar contrasenya</a>
+        </div>
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline text-lg" data-icon="lock">lock</span>
+            <input name="password" required class="w-full pl-12 pr-4 py-3.5 bg-surface-container-highest dark:bg-slate-800 border-none rounded-[10px] text-on-surface dark:text-slate-100 placeholder:text-outline/60 focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest dark:focus:bg-slate-700 transition-all" id="password" placeholder="••••••••" type="password"/>
+        </div>
+        @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+    </div>
+    <button class="w-full bg-primary text-on-primary py-4 rounded-full font-bold text-lg shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all" type="submit">
+        Entrar a l'Hospitalet
+    </button>
+</form>
 <!-- Divider -->
 <div class="relative flex items-center px-8 mb-6">
 <div class="flex-grow border-t border-outline-variant/20"></div>
