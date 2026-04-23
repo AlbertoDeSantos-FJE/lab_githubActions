@@ -55,11 +55,16 @@
             <p class="text-slate-500 dark:text-slate-400 font-medium">{{ __('No s\'han trobat categories que coincideixin amb la cerca.') }}</p>
         </div>
     @endforelse
+
+    <div id="no-filter-results-msg" class="bg-white dark:bg-slate-900 px-8 py-12 rounded-[10px] border border-slate-50 dark:border-slate-800 text-center hidden">
+        <span class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-700 mb-4">filter_list_off</span>
+        <p class="text-slate-500 dark:text-slate-400 font-medium">{{ __('No hi ha cap categoria d\'aquest tipus en aquesta pàgina.') }}</p>
+    </div>
 </div>
 
 <!-- Pagination Links -->
 @if ($categories->hasPages())
-<div class="mt-10">
+<div id="pagination-block" class="mt-10">
     {{ $categories->links('admin.pagination') }}
 </div>
 @endif

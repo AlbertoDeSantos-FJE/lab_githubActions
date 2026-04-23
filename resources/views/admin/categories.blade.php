@@ -513,17 +513,39 @@
 
                     const filterText = this.textContent.trim();
                     const items = document.querySelectorAll('.category-item');
+                    let visibleCount = 0;
                     
                     items.forEach(item => {
                         const isActive = item.dataset.active === 'true';
                         if (filterText === '{{ __("Totes") }}') {
                             item.classList.remove('hidden');
+                            visibleCount++;
                         } else if (filterText === '{{ __("Actives") }}') {
-                            isActive ? item.classList.remove('hidden') : item.classList.add('hidden');
+                            if(isActive) { item.classList.remove('hidden'); visibleCount++; }
+                            else { item.classList.add('hidden'); }
                         } else if (filterText === '{{ __("Inactives") }}') {
-                            !isActive ? item.classList.remove('hidden') : item.classList.add('hidden');
+                            if(!isActive) { item.classList.remove('hidden'); visibleCount++; }
+                            else { item.classList.add('hidden'); }
                         }
                     });
+                    
+                    const noFilterMsg = document.getElementById('no-filter-results-msg');
+                    if(noFilterMsg) {
+                        if(visibleCount === 0 && items.length > 0) {
+                            noFilterMsg.classList.remove('hidden');
+                        } else {
+                            noFilterMsg.classList.add('hidden');
+                        }
+                    }
+                    
+                    const paginationBlock = document.getElementById('pagination-block');
+                    if(paginationBlock) {
+                        if(visibleCount === 0) {
+                            paginationBlock.style.display = 'none';
+                        } else {
+                            paginationBlock.style.display = '';
+                        }
+                    }
                 };
             });
         }
