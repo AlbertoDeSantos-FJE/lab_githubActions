@@ -20,13 +20,16 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Admin panel grouping with role protection
 Route::middleware(['auth'])->group(function () {
-    // Shared routes (Admin & Client)
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-    Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    // Regular user routes (Main page)
+    Route::view('/main', 'main')->name('main');
 
     // Admin only routes
     Route::middleware(['admin'])->prefix('admin')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
+
+        // Moved Profile Routes to be Admin only
+        Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
         Route::get('/places', [AdminController::class, 'getPlaces']);
         Route::post('/places', [AdminController::class, 'storePlace']);

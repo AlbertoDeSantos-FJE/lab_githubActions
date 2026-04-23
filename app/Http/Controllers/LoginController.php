@@ -21,8 +21,8 @@ class LoginController extends Controller
                 return redirect()->intended('/admin');
             }
             
-            // Per defecte, els usuaris normals van al perfil mentre no tinguem la seva vista llista
-            return redirect()->intended('/profile');
+            // Per defecte, els usuaris normals van a main
+            return redirect()->intended('/main');
         }
 
         return back()->withErrors([
